@@ -59,7 +59,7 @@ export default class TableRow extends Component {
     let result = val;
 
     for (const type of values.types) {
-      for (const cat of values.type_categories) {
+      for (const cat of values.typeCategories) {
         if (cat.id === type.categoryId) {
           result = `${this.getLocaleProp(cat.i18nEventTypeCategoryName, true)}:`;
           break;
