@@ -9,29 +9,33 @@ export default function GateSelect(props) {
 
   useEffect(() => {
     props.api
-      .fetchGates()
+      .get('/gates?isActive=true')
       .then((gates_) => setGates(gates_))
       .catch(console.error);
   }, []); // woof!
+
+  const gatesOptions = gates.map((gate) => {
+    const enTranslation = gate.translations.filter((t) => t.localeId === 1);
+    
+    return <option key={gate.id} value={gate.id}>
+      {gate.id} - {enTranslation[0].text}
+    </option>
+  });
 
   const handleGateSelect = (e) => navigate(`/app/${e.target.value}`);
 
   return (
     <div>
-      <div>Please select the gate number:</div>
+      <div>Please select the Gate:</div>
       <select
         className={styles.select}
         defaultValue="-1"
         onChange={handleGateSelect}
       >
         <option value="-1" disabled>
-          numbers
+          Gates
         </option>
-        {gates.map((gate) => (
-          <option key={gate.id} value={gate.id}>
-            {gate.id} - {gate.number} {gate.gateName}
-          </option>
-        ))}
+        {gatesOptions}
       </select>
     </div>
   );

@@ -55,34 +55,18 @@ export default class TableRow extends Component {
     return `${(h < 10 ? '0' : '') + h}:${(m < 10 ? '0' : '') + m}`;
   }
 
-  renderTypeTitle(val, values) {
-    let result = val;
+  renderTypeTitle(val, refs) {
+    const type = refs.types.filter((t) => t.id === val);
+    const category = refs.typeCategories.filter((c) => c.id === type[0].categoryId);
 
-    for (const type of values.types) {
-      for (const cat of values.type_categories) {
-        if (cat.id === type.categoryId) {
-          result = `${this.getLocaleProp(cat.i18nEventTypeCategoryName, true)}:`;
-          break;
-        }
-      }
-    }
-
-    return result;
+    return this.renderPropAnimated(this.props.locale[category[0].code], ':');
   }
 
-  renderTypeName(val, values) {
-    let result = val;
+  renderTypeName(val, refs) {
+    const type = refs.types.filter((t) => t.id === val);
 
-    for (const type of values.types) {
-      if (val === type.id) {
-        result = `${this.getLocaleProp(type.i18nEventTypeName, true)}`;
-        break;
-      }
-    }
-
-    return result;
+    return this.renderPropAnimated(this.props.locale[type[0].nameCode]);
   }
-
   renderDestination(val, values) {
     let result = val;
 

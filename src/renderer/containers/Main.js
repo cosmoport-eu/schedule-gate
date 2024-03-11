@@ -126,7 +126,10 @@ class Main extends Component {
 
   getData = (callback) => {
     Promise.all([
-      this.state.api.fetchReferenceData(),
+      this.props.api.get('/t_events/types?isActive=true'),
+      this.props.api.get('/category?localeId=1&isActive=true'),
+      this.props.api.get('/t_events/statuses'),
+      this.props.api.get('/t_events/states'),
       this.state.api.fetchTranslations(),
       this.state.api.fetchVisibleLocales(),
       this.state.api.fetchEventsByIdForGate(
@@ -136,10 +139,15 @@ class Main extends Component {
       .then((data) =>
         this.setState(
           {
-            refData: data[0],
-            i18n: data[1],
-            locales: data[2],
-            events: data[3],
+            refData: {
+              types: data[0],
+              typeCategories: data[1],
+              statuses: data[2],
+              states: data[3],
+            },
+            i18n: data[4],
+            locales: data[5],
+            events: data[6],
           },
           () => {
             callback();
