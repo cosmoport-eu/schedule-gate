@@ -191,9 +191,9 @@ table{border-collapse:collapse;border-spacing:0}
 	        justify-content:space-between;}
 .flight__left{width:300px;}
 .flight__center{width:calc(100% - 840px);}
-.flight__right{width:480px;}
+.flight__right{width:620px;}
 .flight__login{min-width:100%;max-height:100px;}
-.flight__number{display:-webkit-box;display:-ms-flexbox;display:flex;
+.flight__number{height: 75%;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-pack:center;
 	    -ms-flex-pack:center;
 	        justify-content:center;
@@ -201,7 +201,7 @@ table{border-collapse:collapse;border-spacing:0}
 	    -ms-flex-align:stretch;
 	        align-items:stretch;margin-top:10px;font-size:320px;}
 .flight__number .trapeze{height:auto;}
-.flight__number-body{width:100%;text-align:center;font-size:320px;background-color:rgba(0,0,0,.2);box-shadow:0 2px 0 0 #0cf,0 -2px 0 0 #0cf;}
+.flight__number-body{padding-top: 40px;width:100%;text-align:center;font-size:320px;background-color:rgba(0,0,0,.2);box-shadow:0 2px 0 0 #0cf,0 -2px 0 0 #0cf;}
 .flight__line{display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
@@ -251,7 +251,7 @@ table{border-collapse:collapse;border-spacing:0}
 	        align-items:stretch;margin-top:30px;}
 .flight__description .trapeze{height:auto;}
 .flight__description-body{flex:1;text-align:center;padding:30px;font-size:32px;line-height:34px;background-color:rgba(0,0,0,.2);box-shadow:0 2px 0 0 #0cf,0 -2px 0 0 #0cf;}
-.flight__title{margin-left:20px;margin-top:30px;font-size:36px;}
+.flight__title{margin-left:20px;margin-top:150px;font-size:36px;}
 .flight__next{margin-top:20px;}
 .flight-title{
 	display:-webkit-box;
@@ -321,7 +321,7 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage--landing .voyage__status{color:#9f0;}
 .voyage--cancel .voyage__status{color:#ff1800;}
 .voyage--pre-order .voyage__status{color:#ffea02;}
-.voyage__wrapper{display:-webkit-box;display:-ms-flexbox;display:flex;
+.voyage__wrapper{height:75px;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-flex:1;
 	    -ms-flex:1;
 	        flex:1;box-shadow:0 2px 0 0 var(--border),0 -2px 0 0 var(--border);background-color:var(--bg);}
@@ -329,15 +329,15 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage__icon._right{
 	-webkit-transform:rotate(.5turn);
 	        transform:rotate(.5turn);}
-.voyage__time{width:200px;
+.voyage__time{width:10%;
 	-webkit-box-pack:center;
 	    -ms-flex-pack:center;
 	        justify-content:center;font-size:36px;}
-.voyage__time,.voyage__type{display:-webkit-box;display:-ms-flexbox;display:flex;
+.voyage__time,.voyage__type,.voyage__subtype{display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
 	        align-items:center;}
-.voyage__type{box-sizing:border-box;width:530px;padding:0 15px;--bg:transparent;--border:#fff;}
+.voyage__type{box-sizing:border-box;width:20%;padding:0 15px;--bg:transparent;--border:#fff;}
 .voyage__type-wrap{width:100%;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
@@ -353,6 +353,28 @@ table{border-collapse:collapse;border-spacing:0}
 	        justify-content:center;margin-left:15px;}
 .voyage__type-miss{font-size:36px;color:#fff;}
 .voyage__type-title{font-size:30px;}
+
+
+
+.voyage__subtype{box-sizing:border-box;width:20%;padding:0 15px;--bg:transparent;--border:#fff;}
+.voyage__subtype-wrap{width:100%;
+	-webkit-box-align:center;
+	    -ms-flex-align:center;
+	        align-items:center;box-shadow:0 2px 0 0 var(--border),0 -2px 0 0 var(--border);}
+.voyage__subtype-body,.voyage__subtype-wrap{height:100%;display:-webkit-box;display:-ms-flexbox;display:flex;}
+.voyage__subtype-body{
+	-webkit-box-orient:vertical;
+	-webkit-box-direction:normal;
+	    -ms-flex-direction:column;
+	        flex-direction:column;
+	-webkit-box-pack:center;
+	    -ms-flex-pack:center;
+	        justify-content:center;margin-left:15px;}
+.voyage__subtype-miss{font-size:36px;color:#fff;}
+.voyage__subtype-title{font-size:30px;}
+
+
+
 .voyage__direction{position:relative;box-sizing:border-box;width:340px;padding-left:25px;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
@@ -364,7 +386,7 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage__direction:after{bottom:36%;
 	-webkit-transform:rotate(-55deg);
 	        transform:rotate(-55deg);}
-.voyage__price{position:relative;box-sizing:border-box;width:160px;padding-left:40px;display:-webkit-box;display:-ms-flexbox;display:flex;
+.voyage__price{position:relative;box-sizing:border-box;width:10%;padding-left:40px;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
 	        align-items:center;font-size:32px;}
@@ -376,7 +398,7 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage__price:after{bottom:36%;
 	-webkit-transform:rotate(-55deg);
 	        transform:rotate(-55deg);}
-.voyage__duration{position:relative;box-sizing:border-box;width:300px;padding-left:30px;display:-webkit-box;display:-ms-flexbox;display:flex;
+.voyage__duration{position:relative;box-sizing:border-box;width:10%;padding-left:30px;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
 	        align-items:center;font-size:32px;}
@@ -387,7 +409,7 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage__duration:after{bottom:36%;
 	-webkit-transform:rotate(-55deg);
 	        transform:rotate(-55deg);}
-.voyage__status{width:calc(100% - 1530px);
+.voyage__status{width:15%;
 	-webkit-box-pack:center;
 	    -ms-flex-pack:center;
 	        justify-content:center;font-size:32px;}
@@ -399,7 +421,7 @@ table{border-collapse:collapse;border-spacing:0}
 .head{
 	--bg:rgba(0,204,255,.5);
 	--border:#0cf;
-	height:50px;
+	height:75px;
 	font-size:18px;
 	text-transform:uppercase;
 	color:#fff;

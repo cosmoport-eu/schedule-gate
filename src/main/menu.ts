@@ -53,15 +53,33 @@ export default class MenuBuilder {
             },
           },
           {
+            label: '100% zoom',
+            click() {
+              w.webContents.setZoomLevel(0);
+            },
+          },
+          {
             label: '50% zoom',
             click() {
               w.webContents.setZoomLevel(-2);
             },
           },
           {
-            label: '100% zoom',
+            label: '30% zoom',
             click() {
-              w.webContents.setZoomLevel(0);
+              w.webContents.setZoomLevel(-3);
+            },
+          },
+          {
+            label: '20% zoom',
+            click() {
+              w.webContents.setZoomLevel(-4);
+            },
+          },
+          {
+            label: '10% zoom',
+            click() {
+              w.webContents.setZoomLevel(-6);
             },
           },
         );

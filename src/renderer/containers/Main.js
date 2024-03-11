@@ -10,6 +10,7 @@ import Countdown from '../components/Countdown';
 import TableRow from '../components/TableRow';
 import Guid from '../class/Guid';
 import SomethingCool from '../components/SomethingCool';
+import TableHeader from '../components/TableHeader';
 
 // Design
 require('../../../assets/resources/v1/async.app');
@@ -52,6 +53,9 @@ class Main extends Component {
       gateNo: this.props.params.gate_id,
       lastEventId: 0,
       events: [],
+      nextEvents: [],
+      facilities: [],
+      materials: [],
       type: '',
       refData: {},
       locales: [],
@@ -104,8 +108,8 @@ class Main extends Component {
 
     return Object.prototype.hasOwnProperty.call(locale, property)
       ? uppercase
-        ? locale[property].values[0].toUpperCase()
-        : locale[property].values[0]
+        ? locale[property].toUpperCase()
+        : locale[property]
       : '';
   }
 
@@ -125,6 +129,18 @@ class Main extends Component {
   };
 
   getData = (callback) => {
+    const currentDate = new Date();
+
+    // Получаем год, месяц и день
+    const year = currentDate.getFullYear();
+
+    // Месяц начинается с 0, поэтому добавляем 1
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    
+    // Формируем строку в формате YYYY-MM-DD
+    const formattedDate = `${year}-${month}-${day}`;
+    
     Promise.all([
       this.props.api.get('/t_events/types?isActive=true'),
       this.props.api.get('/category?localeId=1&isActive=true'),
@@ -135,6 +151,9 @@ class Main extends Component {
       this.state.api.fetchEventsByIdForGate(
         this.state.lastEventId > 0 ? this.state.lastEventId : 5,
       ),
+      this.state.api.fetchEventsInRange(formattedDate, formattedDate),
+      this.props.api.get('/facility/all?isActive=true'),
+      this.props.api.get('/material/all?isActive=true'),
     ])
       .then((data) =>
         this.setState(
@@ -148,6 +167,9 @@ class Main extends Component {
             i18n: data[4],
             locales: data[5],
             events: data[6],
+            nextEvents: data[7],
+            facilities: data[8],
+            materials: data[9],
           },
           () => {
             callback();
@@ -182,21 +204,23 @@ class Main extends Component {
 
           if (gate === parseInt(self.props.params.gate_id, 10)) {
             const evId = parseInt(eEventId, 10);
+
             self.setState(
               { shouldShow: true, lastEventId: evId, type: tType },
               () => {
-                clearTimeout(self.showTimerId);
-                self.getEventWithCallback(evId, () => {
-                  const theTime =
-                    self.calculateCountdown(self.state.events[0]) +
-                    self.state.shouldShowTimeout;
-                  console.log('the time', theTime);
-                  self.showTimerId = setTimeout(
-                    () => {
-                      self.showing();
-                    },
-                    theTime * 60 * 1000,
-                  );
+                self.getData(() => {
+                  clearTimeout(self.showTimerId);
+                  self.getEventWithCallback(evId, () => {
+                    const theTime =
+                      self.calculateCountdown(self.state.events[0]) +
+                      self.state.shouldShowTimeout;
+                    self.showTimerId = setTimeout(
+                      () => {
+                        self.showing();
+                      },
+                      theTime * 60 * 1000,
+                    );
+                  });
                 });
               },
             );
@@ -267,25 +291,17 @@ class Main extends Component {
 
   handleGateClick = () => {};
 
-  renderTypeDescription = (val, values) => {
-    const desc = values.types.find((type) => type.id === val);
-
-    return desc ? this.getLocaleProp(desc.i18nEventTypeDescription) : val;
+  renderTypeDescription = (val, refData) => {
+    const typeData = refData.types.find((type) => type.id === val);
+  
+    return typeData ? this.getLocaleProp(typeData.descCode) : val;
   };
 
-  renderDestination(val, values) {
-    const dest = values.destinations.find(
-      (destination) => destination.id === val,
-    );
+  renderStatus(val, refData) {
+    const statusData = refData.statuses.find((status) => status.id === val);
 
-    return dest ? this.getLocaleProp(dest.i18nEventDestinationName, true) : val;
-  }
-
-  renderStatus(val, values) {
-    const stat = values.statuses.find((status) => status.id === val);
-
-    return stat
-      ? this.getLocaleProp(stat.i18nStatus, true)
+    return statusData
+      ? this.getLocaleProp(statusData.code, true)
       : val > 0
       ? val
       : ' ';
@@ -300,27 +316,48 @@ class Main extends Component {
     )} ${m} ${this.getLocaleProp('ui_caption_minutes')}`;
   };
 
-  renderIcon = (typeId) => (
-    <i
-      className={{ 0: '', 1: 'i-man', 2: 'i-radar', 3: 'i-space' }[typeId % 3]}
+  renderIcon = (typeId, refData) => {
+    const typeData = refData.types.find((t) => t.id === typeId);
+    const categoryId = typeData ? typeData.categoryId : 1;
+
+    return <i
+      className={{ 0: '', 1: 'i-man', 2: 'i-radar', 3: 'i-space' }[categoryId % 3]}
     />
-  );
+  };
 
-  renderTypeTitle(val, values) {
-    const typeName = values.types.find((name) => name.id === val);
-    const cat = values.typeCategories.find(c => c.id === typeName.categoryId);
+  renderCategoryName(val, refData) {
+    const typeData = refData.types.find((t) => t.id === val);
+    const categoryData = refData.typeCategories.find(c => c.id === typeData.categoryId);
 
-    return typeName
-      ? `${this.getLocaleProp(cat.i18nEventTypeCategoryName, true)}:`
+    return typeData
+      ? this.getLocaleProp(categoryData.code, true)
       : val;
   }
 
-  renderTypeName(val, values) {
-    const subName = values.types.find((name) => name.id === val);
+  renderTypeName(val, refData) {
+    let typeData = refData.types.find((t) => t.id === val);
 
-    return subName
-      ? `${this.getLocaleProp(subName.i18nEventTypeName, true)}`
+    if (typeData.parentId !== null) {
+      const parentData = refData.types.find((t) => t.id === typeData.parentId);
+
+      typeData = parentData;
+    }
+
+    return typeData
+      ? `${this.getLocaleProp(typeData.nameCode, true)}`
       : val;
+  }
+
+  renderSubtypeName(val, refData) {
+    const typeData = refData.types.find((t) => t.id === val);
+    
+    if (typeData.parentId !== null) {
+      return typeData
+        ? `${this.getLocaleProp(typeData.nameCode, true)}`
+        : val;
+    }
+
+    return '';
   }
 
   calculateCountdown = (event) => {
@@ -357,12 +394,29 @@ class Main extends Component {
     }
 
     const [event, nextEvent] = this.state.events;
+    const nextEvents = this.state.nextEvents.filter((e) => e.startTime > event.startTime);
     const countdown = this.calculateCountdown(event);
 
     const eventDescription = this.renderTypeDescription(
       event.eventTypeId,
       this.state.refData,
     );
+
+    const facilitiesLi = this.state.facilities
+      .filter((f) => event.facilityIds.includes(f.id))
+      .map((f) => (
+        <li key={f.id} >
+          {nextLocale[f.code]}
+        </li>
+      ));
+
+    const materialsLi = this.state.materials
+      .filter((m) => event.materialIds.includes(m.id))
+      .map((m) => (
+        <li key={m.id} >
+          {nextLocale[m.code]}
+        </li>
+      ));
 
     return (
       <div className="g-section__content">
@@ -408,17 +462,11 @@ class Main extends Component {
                 <div className="flight__line-body">
                   <div className="flight__name">
                     <div className="flight__name-icon">
-                      {this.renderIcon(event.eventTypeId)}
+                      {this.renderIcon(event.eventTypeId, this.state.refData)}
                     </div>
                     <div className="flight__name-body">
                       <div className="flight__name-miss">
-                        {this.renderTypeTitle(
-                          event.eventTypeId,
-                          this.state.refData,
-                        )}
-                      </div>
-                      <div className="flight__name-title">
-                        {this.renderTypeName(
+                        {this.renderCategoryName(
                           event.eventTypeId,
                           this.state.refData,
                         )}
@@ -432,15 +480,27 @@ class Main extends Component {
                 <div className="flight__line-title flight-title">
                   <div className="flight-title__top" />
                   <div className="flight-title__name">
-                    {this.getLocaleProp('ui_caption_destination', true)}
+                    NAME
                   </div>
                   <div className="flight-title__bottom" />
                 </div>
                 <div className="flight__line-body">
-                  {this.renderDestination(
-                    event.eventDestinationId,
-                    this.state.refData,
-                  )}
+                  <div className="flight__name">
+                    <div className="flight__name-body">
+                      <div className="flight__name-miss">
+                        {this.renderTypeName(
+                          event.eventTypeId,
+                          this.state.refData,
+                        )}
+                      </div>
+                      <div className="flight__name-title">
+                        {this.renderSubtypeName(
+                          event.eventTypeId,
+                          this.state.refData,
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <Trapeze position="_right" />
               </div>
@@ -483,6 +543,26 @@ class Main extends Component {
                 <Countdown minutes={countdown} />
               </div>
             </div>
+            <div className="flight__right">
+              <div className="flight__time">
+                <div className="flight__time-title flight-title _trapeze">
+                  <div className="flight-title__top" />
+                  <div className="flight-title__name flight__time-wrap">
+                    TICKETS
+                  </div>
+                  <div className="flight-title__bottom" />
+                </div>
+                
+                <div className="flight__time-number">
+                  <Trapeze />
+                  <div className="flight__time-content">
+                  {`${event.contestants} / ${event.peopleLimit} `}
+                  </div>
+                  <Trapeze position="_right" />
+                </div>
+              </div>
+            </div>
+
           </div>
           <div className="flight__description">
             {eventDescription !== '' && <Trapeze />}
@@ -491,17 +571,52 @@ class Main extends Component {
             )}
             {eventDescription !== '' && <Trapeze position="_right" />}
           </div>
-          {nextEvent && (
+          <div className="flight__description">
+            {event.description !== '' && <Trapeze />}
+            {event.description !== '' && (
+              <div className="flight__description-body">{event.description}</div>
+            )}
+            {event.description !== '' && <Trapeze position="_right" />}
+          </div>
+
+          {(facilitiesLi.length > 0 || materialsLi.length > 0) && (
+            <div className="flight__description">
+              <Trapeze />
+                <div className="flight__description-body"
+                  style={{ display: 'flex' }}
+                >
+                  <div style={{ width: '50%' }}>
+                    <ul>
+                      {facilitiesLi}
+                    </ul>
+                  </div>
+                  <div style={{ width: '50%' }}>
+                    <ul>
+                      {materialsLi}
+                    </ul>
+                  </div>
+                </div>
+              <Trapeze position="_right" />
+            </div>
+          )}
+          {nextEvents.length > 0 && (
             <div className="flight__bottom">
               <div className="flight__title">
-                {this.getLocaleProp('ui_caption_next_event', true)}
+                NEXT EVENTS
+                {/* {this.getLocaleProp('ui_caption_next_event', true)} */}
               </div>
               <div className="flight__next">
+              <TableHeader
+                locale={nextLocale}
+              />
+              {nextEvents.map((event) => (
                 <TableRow
-                  event={nextEvent}
+                  key={event.id}
+                  event={event}
                   locale={nextLocale}
                   refs={this.state.refData}
                 />
+              ))}
               </div>
             </div>
           )}

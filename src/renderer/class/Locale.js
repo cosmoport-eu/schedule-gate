@@ -1,7 +1,14 @@
 export default class Locale {
-  static getLocaleProp(locale, property) {
-    return Object.prototype.hasOwnProperty.call(locale, property)
-      ? locale[property].values[0]
+  static getLocaleProp(property, locale, uppercase) {
+    if (property === undefined || locale === undefined) {
+      return '';
+    }
+
+    return typeof locale[property] !== 'undefined'
+      ? uppercase
+        ? locale[property]
+          .toUpperCase()
+        : locale[property]
       : '';
   }
 }

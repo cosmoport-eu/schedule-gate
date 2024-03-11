@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 export default class CalendarDate extends Component {
   static propTypes = {
     locale: PropTypes.shape({
-      ui_months_names: PropTypes.shape({
-        id: PropTypes.number,
-        values: PropTypes.arrayOf(PropTypes.string),
-      }),
+      ui_months_names: PropTypes.string
     }),
   };
 
@@ -38,9 +35,10 @@ export default class CalendarDate extends Component {
   renderMonthDay = () => this.state.date.getDate();
 
   renderMonthName() {
-    return this.props.locale.ui_months_names !== undefined
-      ? this.props.locale.ui_months_names.values[this.state.date.getMonth()]
-      : this.state.date.getMonth();
+    const monthNames = JSON.parse(this.props.locale.ui_months_names);
+    const monthNumber = this.state.date.getMonth();
+
+    return monthNames !== undefined ? monthNames[monthNumber] : monthNumber;
   }
 
   renderYear = () => this.state.date.getFullYear();

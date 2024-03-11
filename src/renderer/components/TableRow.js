@@ -7,10 +7,7 @@ import Locale from '../class/Locale';
 export default class TableRow extends Component {
   static propTypes = {
     locale: PropTypes.shape({
-      ui_months_names: PropTypes.shape({
-        id: PropTypes.number,
-        values: PropTypes.arrayOf(PropTypes.string),
-      }),
+      ui_months_names: PropTypes.string
     }),
   };
 
@@ -59,25 +56,33 @@ export default class TableRow extends Component {
     const type = refs.types.filter((t) => t.id === val);
     const category = refs.typeCategories.filter((c) => c.id === type[0].categoryId);
 
-    return this.renderPropAnimated(this.props.locale[category[0].code], ':');
+    return this.props.locale[category[0].code];
   }
 
-  renderTypeName(val, refs) {
-    const type = refs.types.filter((t) => t.id === val);
+  renderTypeName(val, refData) {
+    let typeData = refData.types.find((t) => t.id === val);
 
-    return this.renderPropAnimated(this.props.locale[type[0].nameCode]);
-  }
-  renderDestination(val, values) {
-    let result = val;
+    if (typeData.parentId !== null) {
+      const parentData = refData.types.find((t) => t.id === typeData.parentId);
 
-    for (const dest of values.destinations) {
-      if (val === dest.id) {
-        result = this.getLocaleProp(dest.i18nEventDestinationName, true);
-        break;
-      }
+      typeData = parentData;
     }
 
-    return result;
+    return typeData
+      ? this.props.locale[typeData.nameCode]
+      : val;
+  }
+
+  renderSubtypeName(val, refData) {
+    const typeData = refData.types.find((t) => t.id === val);
+    
+    if (typeData.parentId !== null) {
+      return typeData
+        ? this.props.locale[typeData.nameCode]
+        : val;
+    }
+
+    return '';
   }
 
   renderDuration(minutes) {
@@ -86,27 +91,23 @@ export default class TableRow extends Component {
     const h = Math.trunc(minutes / 60);
     const m = minutes % 60;
 
-    result = `${h} ${this.getLocaleProp(
-      'ui_caption_hours',
-    )} ${m} ${this.getLocaleProp('ui_caption_minutes')}`;
+    result = `${h} ${this.props.locale.ui_caption_hours} ${m} ${this.props.locale.ui_caption_minutes}`;
 
     return result;
   }
 
-  renderStatus(val, values) {
-    let result = val;
-
-    for (const status of values.statuses) {
-      if (val === status.id) {
-        result = this.getLocaleProp(status.i18nStatus, true);
-        break;
-      }
+  renderStatus(val, refData) {
+    if (val < 2) {
+      return '';
     }
 
-    // Don't show status text for all events with id < 2
-    const caption = val < 2 ? '' : result;
+    let result = val;
 
-    return <span>{caption}</span>;
+    const status = refData.statuses.filter((s) => s.id === val);
+    
+    result = this.props.locale[status[0].code];
+
+    return <span>{result}</span>;
   }
 
   render() {
@@ -134,16 +135,27 @@ export default class TableRow extends Component {
                 <div className="voyage__type-miss">
                   {this.renderTypeTitle(event.eventTypeId, refs)}
                 </div>
-                <div className="voyage__type-title">
-                  {this.renderTypeName(event.eventTypeId, refs)}
-                </div>
               </div>
             </div>
 
             <Trapeze position="_right" />
           </div>
-          <div className="voyage__direction">
-            {this.renderDestination(event.eventDestinationId, refs)}
+
+          <div className="voyage__subtype">
+            <Trapeze />
+
+            <div className="voyage__subtype-wrap">
+              <div className="voyage__subtype-body">
+                <div className="voyage__subtype-miss">
+                  {this.renderTypeName(event.eventTypeId, refs)}
+                </div>
+                <div className="voyage__subtype-title">
+                  {this.renderSubtypeName(event.eventTypeId, refs)}
+                </div>
+              </div>
+            </div>
+
+            <Trapeze position="_right" />
           </div>
           <div className="voyage__price">
             {event.cost}
@@ -151,6 +163,9 @@ export default class TableRow extends Component {
           </div>
           <div className="voyage__duration">
             {this.renderDuration(event.durationTime)}
+          </div>
+          <div className="voyage__duration">
+              {`${event.contestants} / ${event.peopleLimit} `}
           </div>
           <div className="voyage__status">
             {this.renderStatus(event.eventStatusId, refs)}
