@@ -308,7 +308,7 @@ class Main extends Component {
 
   renderTypeTitle(val, values) {
     const typeName = values.types.find((name) => name.id === val);
-    const cat = values.type_categories.find(c => c.id === typeName.categoryId);
+    const cat = values.typeCategories.find(c => c.id === typeName.categoryId);
 
     return typeName
       ? `${this.getLocaleProp(cat.i18nEventTypeCategoryName, true)}:`
