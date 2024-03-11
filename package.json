@@ -1,8 +1,9 @@
 {
   "description": "Gate display module for Cosmoport application",
+  "homepage": "https://github.com/cosmoport-eu/schedule-gate",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sergystepanov/cosmoport-gate.git"
+    "url": "git+https://github.com/cosmoport-eu/schedule-gate.git"
   },
   "author": {
     "name": "Sergey Stepanov",
@@ -74,7 +75,7 @@
     "transformIgnorePatterns": ["/node_modules/(?!(cosmoport-core-api-client)/)"]
   },
   "dependencies": {
-    "cosmoport-core-api-client": "github:sergystepanov/cosmoport-core-api-client#v0.2.3",
+    "cosmoport-core-api-client": "https://github.com/cosmoport-eu/schedule-core-api-client/archive/refs/tags/v0.2.6.tar.gz",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
