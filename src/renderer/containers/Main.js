@@ -556,7 +556,7 @@ class Main extends Component {
                 <div className="flight__time-number">
                   <Trapeze />
                   <div className="flight__time-content">
-                  {`${event.contestants} / ${event.peopleLimit} `}
+                  {`${event.contestants}/${event.peopleLimit}`}
                   </div>
                   <Trapeze position="_right" />
                 </div>
