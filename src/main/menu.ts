@@ -59,27 +59,39 @@ export default class MenuBuilder {
             },
           },
           {
-            label: '50% zoom',
+            label: 'x2 zoom',
             click() {
               w.webContents.setZoomLevel(-2);
             },
           },
           {
-            label: '30% zoom',
+            label: 'x3 zoom',
             click() {
               w.webContents.setZoomLevel(-3);
             },
           },
           {
-            label: '20% zoom',
+            label: 'x6 zoom',
             click() {
-              w.webContents.setZoomLevel(-4);
+              w.webContents.setZoomLevel(-6);
             },
           },
           {
-            label: '10% zoom',
+            label: 'x7 zoom',
             click() {
-              w.webContents.setZoomLevel(-6);
+              w.webContents.setZoomLevel(-7);
+            },
+          },
+          {
+            label: 'x8 zoom',
+            click() {
+              w.webContents.setZoomLevel(-8);
+            },
+          },
+          {
+            label: 'x10 zoom',
+            click() {
+              w.webContents.setZoomLevel(-10);
             },
           },
         );

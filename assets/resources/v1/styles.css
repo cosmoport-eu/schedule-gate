@@ -72,7 +72,7 @@ table{border-collapse:collapse;border-spacing:0}
 	position:relative;
 	font-family:Europe,Arial,Helvetica,sans-serif;
 	font-weight:700;
-	overflow-x:hidden;
+	overflow:hidden;
 	min-width:1920px;
 	color:#0cf;
 	background-repeat:no-repeat;
@@ -190,8 +190,8 @@ table{border-collapse:collapse;border-spacing:0}
 	    -ms-flex-pack:justify;
 	        justify-content:space-between;}
 .flight__left{width:300px;}
-.flight__center{width:calc(100% - 840px);}
-.flight__right{width:620px;}
+.flight__center{ width: 85%; }
+.flight__right{ width: 15%; }
 .flight__login{min-width:100%;max-height:100px;}
 .flight__number{height: 75%;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-pack:center;
@@ -251,7 +251,7 @@ table{border-collapse:collapse;border-spacing:0}
 	        align-items:stretch;margin-top:30px;}
 .flight__description .trapeze{height:auto;}
 .flight__description-body{flex:1;text-align:center;padding:30px;font-size:32px;line-height:34px;background-color:rgba(0,0,0,.2);box-shadow:0 2px 0 0 #0cf,0 -2px 0 0 #0cf;}
-.flight__title{margin-left:20px;margin-top:150px;font-size:36px;}
+.flight__title{margin-left:20px;margin-top:2em;font-size:36px;}
 .flight__next{margin-top:20px;}
 .flight-title{
 	display:-webkit-box;
@@ -306,22 +306,16 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage{
 	--bg:rgba(0,204,255,.2);
 	--border:#0cf;
-	height:75px;
+	height:5vh;
 	margin-top:10px;
 }
 .voyage--finish{opacity:.5;--border:#999;--bg:rgba(0,0,0,.5);color:#999;}
-.voyage--finish .voyage__price-icon{filter:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="filter"><feColorMatrix type="matrix" color-interpolation-filters="sRGB" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0" /></filter></svg>#filter');
-	-webkit-filter:grayscale(1);
-	        filter:grayscale(1);}
 .voyage--finish .voyage__type-miss{color:#999 !important;}
-.voyage--finish .voyage__type-icon{filter:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="filter"><feComponentTransfer color-interpolation-filters="sRGB"><feFuncR type="table" tableValues="0.5 0.5" /><feFuncG type="table" tableValues="0.5 0.5" /><feFuncB type="table" tableValues="0.5 0.5" /></feComponentTransfer></filter></svg>#filter');
-	-webkit-filter:invert(.5);
-	        filter:invert(.5);}
 .voyage--finish .voyage__type{--border:#999 !important;}
 .voyage--landing .voyage__status{color:#9f0;}
 .voyage--cancel .voyage__status{color:#ff1800;}
 .voyage--pre-order .voyage__status{color:#ffea02;}
-.voyage__wrapper{height:75px;display:-webkit-box;display:-ms-flexbox;display:flex;
+.voyage__wrapper{height:5vh;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-flex:1;
 	    -ms-flex:1;
 	        flex:1;box-shadow:0 2px 0 0 var(--border),0 -2px 0 0 var(--border);background-color:var(--bg);}
@@ -329,7 +323,7 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage__icon._right{
 	-webkit-transform:rotate(.5turn);
 	        transform:rotate(.5turn);}
-.voyage__time{width:10%;
+.voyage__time{width:12% !important;
 	-webkit-box-pack:center;
 	    -ms-flex-pack:center;
 	        justify-content:center;font-size:36px;}
@@ -337,7 +331,7 @@ table{border-collapse:collapse;border-spacing:0}
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
 	        align-items:center;}
-.voyage__type{box-sizing:border-box;width:20%;padding:0 15px;--bg:transparent;--border:#fff;}
+.voyage__type{box-sizing:border-box;width:23% !important;padding:0 15px;--bg:transparent;--border:#fff;}
 .voyage__type-wrap{width:100%;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
@@ -353,10 +347,7 @@ table{border-collapse:collapse;border-spacing:0}
 	        justify-content:center;margin-left:15px;}
 .voyage__type-miss{font-size:36px;color:#fff;}
 .voyage__type-title{font-size:30px;}
-
-
-
-.voyage__subtype{box-sizing:border-box;width:20%;padding:0 15px;--bg:transparent;--border:#fff;}
+.voyage__subtype{box-sizing:border-box;width:28% !important;padding:0 15px;--bg:transparent;--border:#fff;}
 .voyage__subtype-wrap{width:100%;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
@@ -372,9 +363,6 @@ table{border-collapse:collapse;border-spacing:0}
 	        justify-content:center;margin-left:15px;}
 .voyage__subtype-miss{font-size:36px;color:#fff;}
 .voyage__subtype-title{font-size:30px;}
-
-
-
 .voyage__direction{position:relative;box-sizing:border-box;width:340px;padding-left:25px;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
@@ -398,7 +386,7 @@ table{border-collapse:collapse;border-spacing:0}
 .voyage__price:after{bottom:36%;
 	-webkit-transform:rotate(-55deg);
 	        transform:rotate(-55deg);}
-.voyage__duration{position:relative;box-sizing:border-box;width:10%;padding-left:30px;display:-webkit-box;display:-ms-flexbox;display:flex;
+.voyage__duration{position:relative;box-sizing:border-box;width:15% !important;padding-left:30px;display:-webkit-box;display:-ms-flexbox;display:flex;
 	-webkit-box-align:center;
 	    -ms-flex-align:center;
 	        align-items:center;font-size:32px;}
@@ -407,6 +395,17 @@ table{border-collapse:collapse;border-spacing:0}
 	        transform:rotate(55deg);}
 .voyage__duration:after,.voyage__duration:before{position:absolute;right:0;content:"";width:25px;height:2px;background-color:var(--border);}
 .voyage__duration:after{bottom:36%;
+	-webkit-transform:rotate(-55deg);
+	        transform:rotate(-55deg);}
+.voyage__limit{position:relative;box-sizing:border-box;width:7% !important;padding-left:30px;display:-webkit-box;display:-ms-flexbox;display:flex;
+	-webkit-box-align:center;
+	    -ms-flex-align:center;
+	        align-items:center;font-size:32px;}
+.voyage__limit:before{top:36%;
+	-webkit-transform:rotate(55deg);
+	        transform:rotate(55deg);}
+.voyage__limit:after,.voyage__limit:before{position:absolute;right:0;content:"";width:25px;height:2px;background-color:var(--border);}
+.voyage__limit:after{bottom:36%;
 	-webkit-transform:rotate(-55deg);
 	        transform:rotate(-55deg);}
 .voyage__status{width:15%;
@@ -421,7 +420,7 @@ table{border-collapse:collapse;border-spacing:0}
 .head{
 	--bg:rgba(0,204,255,.5);
 	--border:#0cf;
-	height:75px;
+	height:5vh;
 	font-size:18px;
 	text-transform:uppercase;
 	color:#fff;
@@ -495,3 +494,15 @@ table{border-collapse:collapse;border-spacing:0}
 	        transform:rotateX(-.5turn);}
 .u-support--webp [class*=" i-"]:before,.u-support--webp [class^=i-]:before{ background-image:url(assets/img/icons.webp); }
 .u-support--webp .date:after,.u-support--webp .time:after{ background-image:url(assets/img/arrow-right.webp); }
+
+.ul_twoColumns {
+	columns: 2;
+	-webkit-columns: 2;
+	-moz-columns: 2;
+}
+
+.ul_threeColumns {
+	columns: 3;
+	-webkit-columns: 3;
+	-moz-columns: 3;
+}

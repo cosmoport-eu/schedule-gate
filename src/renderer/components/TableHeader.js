@@ -24,40 +24,45 @@ export default class TableHeader extends Component {
           </div>
           <div className="voyage__type">
             <Trapeze />
+
             <div className="voyage__type-wrap">
+              <div className="voyage__type-icon">
+              </div>
               <div className="voyage__type-body">
                 <div className="voyage__type-miss">
                   {this.getUiName('ui_caption_type')}
                 </div>
               </div>
             </div>
+
             <Trapeze position="_right" />
           </div>
 
           <div className="voyage__subtype">
             <Trapeze />
-            <div className="voyage__type-wrap">
-              <div className="voyage__type-body">
-                <div className="voyage__type-miss">
-                  {this.getUiName('ui_caption_subtype')}
+
+            <div className="voyage__subtype-wrap">
+              <div className="voyage__subtype-body">
+                <div className="voyage__subtype-miss">
+                  <span>Name</span>
+                  {/* {this.getUiName('ui_caption_subtype')} */}
                 </div>
               </div>
             </div>
+
             <Trapeze position="_right" />
-          </div>
-          <div className="voyage__price">
-            {this.getUiName('ui_caption_cost')}
           </div>
           <div className="voyage__duration">
           {this.getUiName('ui_caption_duration')}
           </div>
-          <div className="voyage__duration">
-            {this.getUiName('ui_caption_tickets')}
+          <div className="voyage__limit">
+              <span>Limit</span>
           </div>
           <div className="voyage__status">
             {this.getUiName('ui_caption_status')}
           </div>
         </div>
+
         <Trapeze position="_right" />
       </div>
     );

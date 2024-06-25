@@ -98,7 +98,7 @@ export default class TableRow extends Component {
 
   renderStatus(val, refData) {
     if (val < 2) {
-      return '';
+      return 'Waiting...';
     }
 
     let result = val;
@@ -157,15 +157,11 @@ export default class TableRow extends Component {
 
             <Trapeze position="_right" />
           </div>
-          <div className="voyage__price">
-            {event.cost}
-            <i className="i-sing voyage__price-icon" />
-          </div>
           <div className="voyage__duration">
             {this.renderDuration(event.durationTime)}
           </div>
-          <div className="voyage__duration">
-              {`${event.contestants} / ${event.peopleLimit} `}
+          <div className="voyage__limit">
+              {event.peopleLimit}
           </div>
           <div className="voyage__status">
             {this.renderStatus(event.eventStatusId, refs)}
