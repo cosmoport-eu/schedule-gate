@@ -48,6 +48,11 @@ class Main extends Component {
     super(props);
 
     this.state = {
+      allEventsForToday: null,
+      currentEventAndNextOne: null,
+      currentEventNew: null,
+      nextEventsNew: [],
+
       api: null,
       socket: null,
       gateNo: this.props.params.gate_id,
@@ -56,6 +61,7 @@ class Main extends Component {
       nextEvents: [],
       facilities: [],
       materials: [],
+      settings: [],
       type: '',
       refData: {},
       locales: [],
@@ -65,19 +71,88 @@ class Main extends Component {
       // The number of minutes to show events after they ended
       shouldShowTimeout: 60,
       shouldShowTime: 10,
-    };
+      currentEvent: [],
+     };
   }
 
   componentDidMount() {
     this.init(this.props.config);
     this.setState({ gateNo: this.props.params.gate_id });
+    this.fetchData(); // Fetch data initially
+    this.intervalId = setInterval(this.fetchData, 60000); // Set up interval to fetch data every minute
+    // this.intervalId = setInterval(this.fetchData, 10000);
   }
 
   componentWillUnmount() {
     clearTimeout(this.timerID);
     clearTimeout(this.showTimerId);
+    clearInterval(this.intervalId); // Clean up interval on component unmount
     this.state.socket.close();
   }
+
+  fetchData = async () => {
+    try {
+      if (this.state.api !== null) {
+        const currentDate = new Date();
+
+        // год, месяц и день
+        const year = currentDate.getFullYear();
+
+        // Месяц начинается с 0, поэтому добавляем 1
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+
+        const formattedDate = `${year}-${month}-${day}`;
+        const currentTimeInMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
+
+        await Promise.all([
+          this.state.api.fetchEventsByIdForGate(this.state.lastEventId === 0 ? 5 : this.state.lastEventId),
+          this.state.api.fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
+        ])
+        .then((data) =>
+          this.setState(
+            {
+              currentEventNew: data[0][0],
+              nextEventsNew: data[1]
+                .filter((e) => (e.startTime > currentTimeInMinutes && e.gateId == this.props.params.gate_id)),
+            },
+            () => {
+              this.getCurrentEventData();
+            },
+          ),
+        )
+        .catch((error) => errorMessage(error));
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  getCurrentEventData = () => {
+    const currentEventNew = this.state.currentEventNew;
+
+    if (typeof currentEventNew !== 'undefined' && currentEventNew !== null) {
+      this.setState({ lastEventId: currentEventNew.id });
+
+      const currentDate = new Date();
+      const evId = currentEventNew.id;
+      const startTimeInMin = currentEventNew.startTime;
+      const endTimeInMin = currentEventNew.startTime + currentEventNew.durationTime;
+      const currentTimeInMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
+
+      let tType = '';
+
+      if (startTimeInMin <= currentTimeInMinutes) {
+        tType = 'before_departion';
+      }
+
+      if (currentTimeInMinutes >= endTimeInMin -5) {
+        tType = 'before_return';
+      }
+
+      this.setState({ shouldShow: true, lastEventId: evId, type: tType });
+    }
+  };
 
   getCurrentLocale = () =>
     this.state.locales.length > 0 && this.state.nextLocaleIndex > -1
@@ -116,14 +191,20 @@ class Main extends Component {
   getEvent = (id) => {
     this.state.api
       .fetchEventsByIdForGate(id)
-      .then((evs) => this.setState({ events: evs, lastEventId: id }))
+      .then((evs) => {
+        console.log(evs);
+        this.setState({ events: evs, lastEventId: id });
+      })
       .catch((error) => errorMessage(error));
   };
 
   getEventWithCallback = (id, callback) => {
     this.state.api
       .fetchEventsByIdForGate(id)
-      .then((evs) => this.setState({ events: evs, lastEventId: id }))
+      .then((evs) => {
+        console.log(evs);
+        this.setState({ events: evs, lastEventId: id });
+      })
       .then(() => callback())
       .catch((error) => errorMessage(error));
   };
@@ -131,29 +212,27 @@ class Main extends Component {
   getData = (callback) => {
     const currentDate = new Date();
 
-    // Получаем год, месяц и день
+    // год, месяц и день
     const year = currentDate.getFullYear();
 
     // Месяц начинается с 0, поэтому добавляем 1
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
-    
-    // Формируем строку в формате YYYY-MM-DD
+
     const formattedDate = `${year}-${month}-${day}`;
-    
+
     Promise.all([
-      this.props.api.get('/t_events/types?isActive=true'),
-      this.props.api.get('/category?localeId=1&isActive=true'),
-      this.props.api.get('/t_events/statuses'),
-      this.props.api.get('/t_events/states'),
+      this.state.api.get('/t_events/types?isActive=true'),
+      this.state.api.get('/category?localeId=1&isActive=true'),
+      this.state.api.get('/t_events/statuses'),
+      this.state.api.get('/t_events/states'),
       this.state.api.fetchTranslations(),
       this.state.api.fetchVisibleLocales(),
-      this.state.api.fetchEventsByIdForGate(
-        this.state.lastEventId > 0 ? this.state.lastEventId : 5,
-      ),
-      this.state.api.fetchEventsInRange(formattedDate, formattedDate),
-      this.props.api.get('/facility/all?isActive=true'),
-      this.props.api.get('/material/all?isActive=true'),
+      this.state.api.fetchEventsByIdForGate(this.state.lastEventId === 0 ? 5 : this.state.lastEventId),
+      this.state.api.fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id),
+      this.state.api.get('/facility/all?isActive=true'),
+      this.state.api.get('/material/all?isActive=true'),
+      this.state.api.fetchSettings(),
     ])
       .then((data) =>
         this.setState(
@@ -170,12 +249,52 @@ class Main extends Component {
             nextEvents: data[7],
             facilities: data[8],
             materials: data[9],
+            settings: data[10],
           },
           () => {
             callback();
           },
         ),
       )
+      .catch((error) => errorMessage(error));
+  };
+
+  getCurentEvent = () => {
+    const currentDate = new Date();
+
+    // год, месяц и день
+    const year = currentDate.getFullYear();
+
+    // Месяц начинается с 0, поэтому добавляем 1
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
+
+    this.state.api
+      .fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
+      .then((data) => {
+        const hours = currentDate.getHours();
+        const minutes = currentDate.getMinutes();
+        const currentTimeInMin = hours * 60 + minutes;
+        const settings = Array.isArray(this.state.settings) ? this.state.settings : [];
+        const boardingTime =
+          parseInt(
+            settings.find((setting) => setting.param === 'boarding_time')
+              ?.value,
+            5,
+          ) || 5;
+
+        const currentEvent = data
+          .filter((ev) =>
+            ev.startTime < currentTimeInMin - ev.durationTime    // время начала
+            && ev.startTime + ev.durationTime < currentTimeInMin // время окончания
+            && ev.gateId == this.props.params.gate_id
+          );
+
+        this.setState({ currentEvent: currentEvent[0]});
+      })
+      // .then(() => callback())
       .catch((error) => errorMessage(error));
   };
 
@@ -208,28 +327,28 @@ class Main extends Component {
             self.setState(
               { shouldShow: true, lastEventId: evId, type: tType },
               () => {
-                self.getData(() => {
-                  clearTimeout(self.showTimerId);
-                  self.getEventWithCallback(evId, () => {
-                    const theTime =
-                      self.calculateCountdown(self.state.events[0]) +
-                      self.state.shouldShowTimeout;
-                    self.showTimerId = setTimeout(
-                      () => {
-                        self.showing();
-                      },
-                      theTime * 60 * 1000,
-                    );
-                  });
+                clearTimeout(self.showTimerId);
+                self.getEventWithCallback(evId, () => {
+                  const theTime =
+                    self.calculateCountdown(self.state.events[0]) +
+                    self.state.shouldShowTimeout;
+                  self.showTimerId = setTimeout(
+                    () => {
+                      self.showing();
+                    },
+                    theTime * 60 * 1000,
+                  );
                 });
               },
             );
           }
         }
 
-        if (message === ':reload') {
+        if (message === ':reload' || message === ':update-nodes:') {
           self.getData(() => {
-            if (self.state.lastEventId > 0) {
+            if (self.state.lastEventId === 0) {
+              self.getCurentEvent();
+            } else {
               self.getEvent(self.state.lastEventId);
             }
           });
@@ -293,7 +412,7 @@ class Main extends Component {
 
   renderTypeDescription = (val, refData) => {
     const typeData = refData.types.find((type) => type.id === val);
-  
+
     return typeData ? this.getLocaleProp(typeData.descCode) : val;
   };
 
@@ -326,12 +445,37 @@ class Main extends Component {
   };
 
   renderCategoryName(val, refData) {
-    const typeData = refData.types.find((t) => t.id === val);
+    let subtypeName = '';
+
+    let typeData = refData.types.find((t) => t.id === val);
+
+    if (!typeData) {
+      return val;
+    }
+
+    if (typeData.parentId !== null) {
+      subtypeName = ` | ${this.getLocaleProp(typeData.nameCode, true)}`;
+
+      const parentData = refData.types.find((t) => t.id === typeData.parentId);
+
+      typeData = parentData;
+    }
+
+    const typeName = this.getLocaleProp(typeData.nameCode, true);
+
     const categoryData = refData.typeCategories.find(c => c.id === typeData.categoryId);
 
-    return typeData
-      ? this.getLocaleProp(categoryData.code, true)
-      : val;
+    if (!categoryData) {
+      return `${typeName}${subtypeName}`;
+    }
+
+    const categoryName = this.getLocaleProp(categoryData.code, true);
+
+    if (typeData.categoryId === 1) { // Birthday Party
+      return categoryName;
+    }
+
+    return `${categoryName} | ${typeName}${subtypeName}`;
   }
 
   renderTypeName(val, refData) {
@@ -350,7 +494,7 @@ class Main extends Component {
 
   renderSubtypeName(val, refData) {
     const typeData = refData.types.find((t) => t.id === val);
-    
+
     if (typeData.parentId !== null) {
       return typeData
         ? `${this.getLocaleProp(typeData.nameCode, true)}`
@@ -360,6 +504,7 @@ class Main extends Component {
     return '';
   }
 
+  // отсчёт времени начинается за 5 минут до начала/окончания мероприятия
   calculateCountdown = (event) => {
     const date = new Date();
 
@@ -380,7 +525,16 @@ class Main extends Component {
       return <div>No translation data.</div>;
     }
 
-    if (!this.state.events.length > 0 || !this.state.shouldShow) {
+    // const [event, nextEvent] = this.state.events;
+    const event = this.state.currentEventNew;
+
+    const currentDate = new Date();
+    const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
+      currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
+
+    const nextEvents = this.state.nextEventsNew;
+
+    if (!nextEvents.length > 0 && !this.state.shouldShow) {
       return <SomethingCool />;
     }
 
@@ -393,30 +547,35 @@ class Main extends Component {
       return <div>Loading...</div>;
     }
 
-    const [event, nextEvent] = this.state.events;
-    const nextEvents = this.state.nextEvents.filter((e) => e.startTime > event.startTime);
-    const countdown = this.calculateCountdown(event);
+    let countdown = 0;
+    let eventDescription = '';
+    let facilitiesLi = <></>;
+    let materialsLi = <></>;
 
-    const eventDescription = this.renderTypeDescription(
-      event.eventTypeId,
-      this.state.refData,
-    );
+    if (typeof event !== 'undefined' && event !== null) {
+      countdown = this.calculateCountdown(event);
 
-    const facilitiesLi = this.state.facilities
-      .filter((f) => event.facilityIds.includes(f.id))
-      .map((f) => (
-        <li key={f.id} >
-          {nextLocale[f.code]}
-        </li>
-      ));
+      eventDescription = this.renderTypeDescription(
+        event.eventTypeId,
+        this.state.refData,
+      );
 
-    const materialsLi = this.state.materials
-      .filter((m) => event.materialIds.includes(m.id))
-      .map((m) => (
-        <li key={m.id} >
-          {nextLocale[m.code]}
-        </li>
-      ));
+      facilitiesLi = this.state.facilities
+        .filter((f) => event.facilityIds.includes(f.id))
+        .map((f) => (
+          <li key={f.id} >
+            {nextLocale[f.code]}
+          </li>
+        ));
+
+      materialsLi = this.state.materials
+        .filter((m) => event.materialIds.includes(m.id))
+        .map((m) => (
+          <li key={m.id} >
+            {nextLocale[m.code]}
+          </li>
+        ));
+    }
 
     return (
       <div className="g-section__content">
@@ -431,195 +590,199 @@ class Main extends Component {
         </div>
 
         <div className="flight">
-          <div className="flight__main">
-            <div className="flight__left">
-              <div
-                className="flight__login flight-title _trapeze"
-                onClick={this.handleGateClick}
-              >
-                <div className="flight-title__top" />
-                <div className="flight-title__name flight__login-name">
-                  {this.getLocaleProp('ui_caption_gate', true)}
-                </div>
-                <div className="flight-title__bottom" />
-              </div>
-              <div className="flight__number">
-                <Trapeze />
-                <div className="flight__number-body">{this.state.gateNo}</div>
-                <Trapeze position="_right" />
-              </div>
-            </div>
+          {/* то же самое, что 65% */}
+          <div style={{ height: '60vh' }}>
+            {(typeof event !== 'undefined' && event.eventStatusId !== 5) && (
+              <div>
+                <div className="flight__main">
+                  {/* <div className="flight__left">
+                    <div
+                      className="flight__login flight-title _trapeze"
+                      onClick={this.handleGateClick}
+                    >
+                      <div className="flight-title__top" />
+                      <div className="flight-title__name flight__login-name">
+                        {this.getLocaleProp('ui_caption_gate', true)}
+                      </div>
+                      <div className="flight-title__bottom" />
+                    </div>
+                    <div className="flight__number">
+                      <Trapeze />
+                      <div className="flight__number-body">{this.state.gateNo}</div>
+                      <Trapeze position="_right" />
+                    </div>
+                  </div> */}
 
-            <div className="flight__center">
-              <div className="flight__line">
-                <div className="flight__line-title flight-title">
-                  <div className="flight-title__top" />
-                  <div className="flight-title__name">
-                    {this.getLocaleProp('ui_caption_type', true)}
-                  </div>
-                  <div className="flight-title__bottom" />
-                </div>
-                <div className="flight__line-body">
-                  <div className="flight__name">
-                    <div className="flight__name-icon">
-                      {this.renderIcon(event.eventTypeId, this.state.refData)}
+                  <div className="flight__center">
+                    <div className="flight__line">
+                      <div className="flight__line-title flight-title">
+                        <div className="flight-title__top" />
+                        <div className="flight-title__name">
+                          {this.getLocaleProp('ui_caption_type', true)}
+                        </div>
+                        <div className="flight-title__bottom" />
+                      </div>
+                      <div className="flight__line-body">
+                        <div className="flight__name">
+                          <div className="flight__name-icon">
+                            {this.renderIcon(event.eventTypeId, this.state.refData)}
+                          </div>
+                          <div className="flight__name-body">
+                            <div className="flight__name-miss">
+                              {this.renderCategoryName(
+                                event.eventTypeId,
+                                this.state.refData,
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <Trapeze position="_right" />
                     </div>
-                    <div className="flight__name-body">
-                      <div className="flight__name-miss">
-                        {this.renderCategoryName(
-                          event.eventTypeId,
-                          this.state.refData,
-                        )}
+                    <div className="flight__line">
+                      <div className="flight__line-title flight-title">
+                        <div className="flight-title__top" />
+                        <div className="flight-title__name">
+                          DESCRIPTION
+                        </div>
+                        <div className="flight-title__bottom" />
+                      </div>
+                      <div className="flight__line-body">
+                        <div className="flight__name">
+                          <div className="flight__name-body">
+                            {event.description}
+                          </div>
+                        </div>
+                      </div>
+                      <Trapeze position="_right" />
+                    </div>
+                    <div style={{ display: 'flex', width: '100%', marginTop: '10px' }}>
+                      <div style={{ width: '50%', paddingRight: '0.5em' }}>
+                        <div className="flight__line">
+                          <div className="flight__line-title flight-title">
+                            <div className="flight-title__top" />
+                            <div className="flight-title__name">
+                              {this.getLocaleProp('ui_caption_duration', true)}
+                            </div>
+                            <div className="flight-title__bottom" />
+                          </div>
+                          <div className="flight__line-body">
+                            {this.renderDuration(event.durationTime)}
+                          </div>
+                          <Trapeze position="_right" />
+                        </div>
+                      </div>
+                      <div style={{ width: '50%', paddingLeft: '0.5em' }}>
+                        <div className="flight__line flight__line--status">
+                          <div className="flight__line-title flight-title">
+                            <div className="flight-title__top" />
+                            <div className="flight-title__name">
+                              {this.getLocaleProp('ui_caption_status', true)}
+                            </div>
+                            <div className="flight-title__bottom" />
+                          </div>
+                          <div className="flight__line-body">
+                            {this.renderStatus(event.eventStatusId, this.state.refData)}
+                          </div>
+                          <Trapeze position="_right" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <Trapeze position="_right" />
-              </div>
-              <div className="flight__line">
-                <div className="flight__line-title flight-title">
-                  <div className="flight-title__top" />
-                  <div className="flight-title__name">
-                    NAME
-                  </div>
-                  <div className="flight-title__bottom" />
-                </div>
-                <div className="flight__line-body">
-                  <div className="flight__name">
-                    <div className="flight__name-body">
-                      <div className="flight__name-miss">
-                        {this.renderTypeName(
-                          event.eventTypeId,
-                          this.state.refData,
-                        )}
+                  <div className="flight__right">
+                    <div className="flight__time">
+                      <div className="flight__time-title flight-title _trapeze">
+                        <div className="flight-title__top" />
+                        <div className="flight-title__name flight__time-wrap">
+                          {this.getLocaleProp('ui_caption_time_etd', true)}
+                        </div>
+                        <div className="flight-title__bottom" />
                       </div>
-                      <div className="flight__name-title">
-                        {this.renderSubtypeName(
-                          event.eventTypeId,
-                          this.state.refData,
-                        )}
-                      </div>
+                      <Countdown minutes={countdown} />
                     </div>
                   </div>
                 </div>
-                <Trapeze position="_right" />
-              </div>
-              <div className="flight__line">
-                <div className="flight__line-title flight-title">
-                  <div className="flight-title__top" />
-                  <div className="flight-title__name">
-                    {this.getLocaleProp('ui_caption_duration', true)}
-                  </div>
-                  <div className="flight-title__bottom" />
+                <div className="flight__description">
+                  {eventDescription !== '' && <Trapeze />}
+                  {eventDescription !== '' && (
+                    <div className="flight__description-body">{eventDescription}</div>
+                  )}
+                  {eventDescription !== '' && <Trapeze position="_right" />}
                 </div>
-                <div className="flight__line-body">
-                  {this.renderDuration(event.durationTime)}
-                </div>
-                <Trapeze position="_right" />
-              </div>
-              <div className="flight__line flight__line--status">
-                <div className="flight__line-title flight-title">
-                  <div className="flight-title__top" />
-                  <div className="flight-title__name">
-                    {this.getLocaleProp('ui_caption_status', true)}
-                  </div>
-                  <div className="flight-title__bottom" />
-                </div>
-                <div className="flight__line-body">
-                  {this.renderStatus(event.eventStatusId, this.state.refData)}
-                </div>
-                <Trapeze position="_right" />
-              </div>
-            </div>
-            <div className="flight__right">
-              <div className="flight__time">
-                <div className="flight__time-title flight-title _trapeze">
-                  <div className="flight-title__top" />
-                  <div className="flight-title__name flight__time-wrap">
-                    {this.getLocaleProp('ui_caption_time_etd', true)}
-                  </div>
-                  <div className="flight-title__bottom" />
-                </div>
-                <Countdown minutes={countdown} />
-              </div>
-            </div>
-            <div className="flight__right">
-              <div className="flight__time">
-                <div className="flight__time-title flight-title _trapeze">
-                  <div className="flight-title__top" />
-                  <div className="flight-title__name flight__time-wrap">
-                    TICKETS
-                  </div>
-                  <div className="flight-title__bottom" />
-                </div>
-                
-                <div className="flight__time-number">
-                  <Trapeze />
-                  <div className="flight__time-content">
-                  {`${event.contestants}/${event.peopleLimit}`}
-                  </div>
-                  <Trapeze position="_right" />
-                </div>
-              </div>
-            </div>
 
-          </div>
-          <div className="flight__description">
-            {eventDescription !== '' && <Trapeze />}
-            {eventDescription !== '' && (
-              <div className="flight__description-body">{eventDescription}</div>
+                <div style={{ display: 'flex', marginTop: '2em' }}>
+                  <div style={{ width: '50%', paddingRight: '0.5em' }}>
+                    <div className="flight__login flight-title _trapeze">
+                      <div className="flight-title__top" />
+                      <div className="flight-title__name flight__login-name">
+                        FACILITIES
+                      </div>
+                      <div className="flight-title__bottom" />
+                    </div>
+                    <div className="flight__number">
+                      <Trapeze />
+                      <div className="flight__description-body">
+                        <ul className="ul_threeColumns">
+                          {facilitiesLi}
+                        </ul>
+                      </div>
+                      <Trapeze position="_right" />
+                    </div>
+                  </div>
+                  <div style={{ width: '50%', paddingLeft: '0.5em' }}>
+                    <div className="flight__login flight-title _trapeze">
+                      <div className="flight-title__top" />
+                      <div className="flight-title__name flight__login-name">
+                        MATERIALS
+                      </div>
+                      <div className="flight-title__bottom" />
+                    </div>
+                    <div className="flight__number">
+                      <Trapeze />
+                      <div className="flight__description-body">
+                        <ul className="ul_threeColumns">
+                          {materialsLi}
+                        </ul>
+                      </div>
+                      <Trapeze position="_right" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
-            {eventDescription !== '' && <Trapeze position="_right" />}
-          </div>
-          <div className="flight__description">
-            {event.description !== '' && <Trapeze />}
-            {event.description !== '' && (
-              <div className="flight__description-body">{event.description}</div>
-            )}
-            {event.description !== '' && <Trapeze position="_right" />}
           </div>
 
-          {(facilitiesLi.length > 0 || materialsLi.length > 0) && (
-            <div className="flight__description">
-              <Trapeze />
-                <div className="flight__description-body"
-                  style={{ display: 'flex' }}
-                >
-                  <div style={{ width: '50%' }}>
-                    <ul>
-                      {facilitiesLi}
-                    </ul>
-                  </div>
-                  <div style={{ width: '50%' }}>
-                    <ul>
-                      {materialsLi}
-                    </ul>
-                  </div>
+          <div style={{ height: '25vh' }}>
+            {nextEvents.length > 0 && (
+              <div className="flight__bottom">
+                <div className="flight__title">
+                  NEXT EVENTS
+                  {/* {this.getLocaleProp('ui_caption_next_event', true)} */}
                 </div>
-              <Trapeze position="_right" />
-            </div>
-          )}
-          {nextEvents.length > 0 && (
-            <div className="flight__bottom">
-              <div className="flight__title">
-                NEXT EVENTS
-                {/* {this.getLocaleProp('ui_caption_next_event', true)} */}
-              </div>
-              <div className="flight__next">
-              <TableHeader
-                locale={nextLocale}
-              />
-              {nextEvents.map((event) => (
+                <div className="flight__next">
+                <TableHeader
+                  locale={nextLocale}
+                />
                 <TableRow
-                  key={event.id}
-                  event={event}
+                  key={nextEvents[0].id}
+                  event={nextEvents[0]}
                   locale={nextLocale}
                   refs={this.state.refData}
                 />
-              ))}
+                {
+                  nextEvents[1] && (
+                    <TableRow
+                      key={nextEvents[1].id}
+                      event={nextEvents[1]}
+                      locale={nextLocale}
+                      refs={this.state.refData}
+                    />
+                  )
+                }
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     );

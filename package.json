@@ -73,9 +73,12 @@
     "transform": {
       "\\.(ts|tsx|js|jsx)$": "ts-jest"
     },
-    "transformIgnorePatterns": ["/node_modules/(?!(cosmoport-core-api-client)/)"]
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(cosmoport-core-api-client)/)"
+    ]
   },
   "dependencies": {
+    "@mui/icons-material": "^5.15.21",
     "cosmoport-core-api-client": "https://github.com/cosmoport-eu/schedule-core-api-client/archive/refs/tags/v0.2.6.tar.gz",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
