@@ -11,11 +11,18 @@ import TableRow from '../components/TableRow';
 import Guid from '../class/Guid';
 import SomethingCool from '../components/SomethingCool';
 import TableHeader from '../components/TableHeader';
+import * as Icons from "@mui/icons-material";
+import { snakeCase, camelCase }  from  "lodash";
 
 // Design
 require('../../../assets/resources/v1/async.app');
 require('../../../assets/resources/v1/defer.app');
 
+const generateIcon = (variation, props = {}) => {
+  const IconName = Icons[variation];
+  return <IconName {...props} />;
+};
+const upperFirst = (str ) => str ? (str.charAt(0).toUpperCase() + str.slice(1)): str;
 const errorMessage = (error) =>
   console.error(`Error #${error.code || '000'}: ${error.message}`, 'error');
 const defaultLocale = {
@@ -564,7 +571,7 @@ class Main extends Component {
         .filter((f) => event.facilityIds.includes(f.id))
         .map((f) => (
           <li key={f.id} >
-            {nextLocale[f.code]}
+            { f?.icon ?  generateIcon(upperFirst(camelCase(f.icon)), {fontSize: 'large'}) : ''} {nextLocale[f.code]}
           </li>
         ));
 
@@ -572,7 +579,7 @@ class Main extends Component {
         .filter((m) => event.materialIds.includes(m.id))
         .map((m) => (
           <li key={m.id} >
-            {nextLocale[m.code]}
+            { m?.icon ?  generateIcon(upperFirst(camelCase(m.icon)), {fontSize: 'large'}) : ''} {nextLocale[m.code]}
           </li>
         ));
     }
@@ -592,7 +599,7 @@ class Main extends Component {
         <div className="flight">
           {/* то же самое, что 65% */}
           <div style={{ height: '60vh' }}>
-            {(typeof event !== 'undefined' && event.eventStatusId !== 5) && (
+            { event ? (typeof event !== 'undefined' && event.eventStatusId !== 5) && (
               <div>
                 <div className="flight__main">
                   {/* <div className="flight__left">
@@ -749,7 +756,7 @@ class Main extends Component {
                   </div>
                 </div>
               </div>
-            )}
+            ) : <code>Empty event</code> }
           </div>
 
           <div style={{ height: '25vh' }}>
