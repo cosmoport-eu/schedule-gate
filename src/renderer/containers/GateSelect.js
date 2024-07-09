@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import styles from './GateSelect.module.css';
 
 export default function GateSelect(props) {
@@ -16,7 +15,7 @@ export default function GateSelect(props) {
 
   const gatesOptions = gates.map((gate) => {
     const enTranslation = gate.translations.filter((t) => t.localeId === 1);
-    
+
     return <option key={gate.id} value={gate.id}>
       {gate.id} - {enTranslation[0].text}
     </option>

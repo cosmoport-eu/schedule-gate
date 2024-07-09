@@ -86,7 +86,7 @@ class Main extends Component {
     this.init(this.props.config);
     this.setState({ gateNo: this.props.params.gate_id });
     this.fetchData(); // Fetch data initially
-    this.intervalId = setInterval(this.fetchData, 60000); // Set up interval to fetch data every minute
+    this.intervalId = setInterval(this.fetchData, 5000); //60000 // Set up interval to fetch data every minute
     // this.intervalId = setInterval(this.fetchData, 10000);
   }
 
@@ -116,8 +116,534 @@ class Main extends Component {
           this.state.api.fetchEventsByIdForGate(this.state.lastEventId === 0 ? 5 : this.state.lastEventId),
           this.state.api.fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
         ])
-        .then((data) =>
-          this.setState(
+        .then((data) =>{
+          /*
+          data = [
+            [
+                {
+                    "id": 199,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventStateId": 2,
+                    "eventStatusId": 3,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 745,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 200,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 751,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                }
+            ],
+            [
+                {
+                    "id": 194,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 715,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:52:14",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 195,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 721,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:03",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 196,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 727,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:04",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 197,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 3,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 733,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:04",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 198,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 3,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 739,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 199,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 3,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 745,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 200,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 751,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 201,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 757,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 202,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 763,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:05",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 203,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 769,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:06",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 204,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 775,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:06",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 205,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 781,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:06",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 206,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 781,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:06",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 207,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 793,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:06",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 208,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 799,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:07",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 209,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 805,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:07",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 210,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 811,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:07",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                },
+                {
+                    "id": 211,
+                    "eventDate": "2024-07-09",
+                    "eventTypeId": 1,
+                    "eventColor": "#f44336",
+                    "eventStateId": 2,
+                    "eventStatusId": 0,
+                    "gateId": 1,
+                    "gate2Id": 1,
+                    "startTime": 817,
+                    "durationTime": 180,
+                    "repeatInterval": 1,
+                    "cost": 350,
+                    "peopleLimit": 0,
+                    "contestants": 0,
+                    "dateAdded": "2024-07-09 08:57:08",
+                    "description": "",
+                    "materialIds": [
+                        1,
+                        2
+                    ],
+                    "facilityIds": [
+                        1,
+                        2
+                    ]
+                }
+            ]
+        ]*/
+          console.log('fetchData->', data)
+          return this.setState(
             {
               currentEventNew: data[0][0],
               nextEventsNew: data[1]
@@ -126,8 +652,8 @@ class Main extends Component {
             () => {
               this.getCurrentEventData();
             },
-          ),
-        )
+          )
+        })
         .catch((error) => errorMessage(error));
       }
     } catch (error) {
@@ -156,6 +682,11 @@ class Main extends Component {
       if (currentTimeInMinutes >= endTimeInMin -5) {
         tType = 'before_return';
       }
+      console.log(`#${evId}: getCurrentEventData->Current Event:`, currentEventNew);
+      console.log(`#${evId}: getCurrentEventData->type:`, tType);
+      // if (currentTimeInMinutes >= endTimeInMin -5) {
+      //   tType = 'started';
+      // }
 
       this.setState({ shouldShow: true, lastEventId: evId, type: tType });
     }
@@ -285,16 +816,15 @@ class Main extends Component {
         const minutes = currentDate.getMinutes();
         const currentTimeInMin = hours * 60 + minutes;
         const settings = Array.isArray(this.state.settings) ? this.state.settings : [];
-        const boardingTime =
-          parseInt(
+        const boardingTime = parseInt(
             settings.find((setting) => setting.param === 'boarding_time')
               ?.value,
             5,
           ) || 5;
-
-        const currentEvent = data
-          .filter((ev) =>
-            ev.startTime < currentTimeInMin - ev.durationTime    // время начала
+console.log('getCurentEvent->data=', data)
+        const currentEvent = data.filter((ev) =>
+            ev
+            && ev.startTime < currentTimeInMin - ev.durationTime    // время начала
             && ev.startTime + ev.durationTime < currentTimeInMin // время окончания
             && ev.gateId == this.props.params.gate_id
           );
@@ -513,18 +1043,29 @@ class Main extends Component {
 
   // отсчёт времени начинается за 5 минут до начала/окончания мероприятия
   calculateCountdown = (event) => {
+    console.log('calculateCountdown()->event=', event)
     const date = new Date();
 
     let to = 0;
     if (this.state.type === 'before_departion') {
       to = event.startTime;
+      // to = event.startTime + event.durationTime;
     } else if (this.state.type === 'before_return') {
       to = event.startTime + event.durationTime;
+    } else {
+      // const currentDate = new Date();
+      // const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
+      //   currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
+      // to = (event.startTime + event.durationTime) - currentTimeInMinutes
+      to = event.startTime + event.durationTime;
+      // console.log('calculateCountdown()->to=', to)
     }
 
     const time = to - (date.getHours() * 60 + date.getMinutes());
 
-    return time < 0 ? 0 : time;
+    const t = time < 0 ? 0 : time;
+    console.log('calculateCountdown()->, time=', t, 'type=', this.state.type)
+    return t;
   };
 
   render() {
@@ -532,9 +1073,8 @@ class Main extends Component {
       return <div>No translation data.</div>;
     }
 
-    // const [event, nextEvent] = this.state.events;
     const event = this.state.currentEventNew;
-
+    console.log('render()->event=', event)
     const currentDate = new Date();
     const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
       currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
