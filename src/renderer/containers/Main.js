@@ -117,7 +117,49 @@ class Main extends Component {
           this.state.api.fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
         ])
         .then((data) =>{
-          console.log('fetchData->', data)
+
+          // console.log('fetchData->', data)
+          /*
+          const data = [0][{
+            "id": 254,
+            "eventDate": "2024-07-19",
+            "eventTypeId": 1,
+            "eventStateId": 2,
+            "eventStatusId": 3,
+            "gateId": 1,
+            "gate2Id": 1,
+            "startTime": 1127,
+            "durationTime": 180,
+            "repeatInterval": 1,
+            "cost": 350,
+            "peopleLimit": 0,
+            "contestants": 0,
+            "dateAdded": "2024-07-19 15:41:13",
+            "description": "",
+            "materialIds": [
+                1,
+                2
+            ],
+            "facilityIds": [
+                1,
+                2
+            ],
+            "qty": [
+                {
+                    "id": 677,
+                    "timetable_id": 254,
+                    "material_id": 2,
+                    "qty": "34"
+                },
+                {
+                    "id": 676,
+                    "timetable_id": 254,
+                    "material_id": 1,
+                    "qty": "12"
+                }
+            ]
+        }]
+        */
           return this.setState(
             {
               currentEventNew: data[0][0],
@@ -581,12 +623,12 @@ console.log('getCurentEvent->data=', data)
         event.eventTypeId,
         this.state.refData,
       );
-
+      // {fontSize: 'large'}
       facilitiesLi = this.state.facilities
         .filter((f) => event.facilityIds.includes(f.id))
         .map((f) => (
           <li key={f.id} >
-            { f?.icon ?  generateIcon(upperFirst(camelCase(f.icon)), {fontSize: 'large'}) : ''} {nextLocale[f.code]}
+            { f?.icon ?  generateIcon(upperFirst(camelCase(f.icon)), {sx: { fontSize: 40 }}) : ''} {nextLocale[f.code]}
           </li>
         ));
 
