@@ -75,7 +75,7 @@ export default class TableRow extends Component {
 
   renderSubtypeName(val, refData) {
     const typeData = refData.types.find((t) => t.id === val);
-    
+
     if (typeData.parentId !== null) {
       return typeData
         ? this.props.locale[typeData.nameCode]
@@ -104,7 +104,7 @@ export default class TableRow extends Component {
     let result = val;
 
     const status = refData.statuses.filter((s) => s.id === val);
-    
+
     result = this.props.locale[status[0].code];
 
     return <span>{result}</span>;
@@ -122,7 +122,7 @@ export default class TableRow extends Component {
 
         <div className="voyage__wrapper">
           <div className="voyage__time">
-            {this.renderDepartion(event.startTime)}
+            #{event.id} {this.renderDepartion(event.startTime)}
           </div>
           <div className="voyage__type">
             <Trapeze />

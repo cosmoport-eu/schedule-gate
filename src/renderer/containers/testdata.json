@@ -1,0 +1,124 @@
+[
+  [        {
+          "id": 255,
+          "eventDate": "2024-07-20",
+          "eventTypeId": 1,
+          "eventColor": "#f44336",
+          "eventStateId": 2,
+          "eventStatusId": 0,
+          "gateId": 1,
+          "gate2Id": 1,
+          "startTime": 992,
+          "durationTime": 180,
+          "repeatInterval": 1,
+          "cost": 350,
+          "peopleLimit": 0,
+          "contestants": 0,
+          "dateAdded": "2024-07-20 17:10:00",
+          "description": "",
+          "materialIds": [
+              1,
+              2
+          ],
+          "facilityIds": [
+              1,
+              2
+          ],
+          "qty": [
+              {
+                  "id": 679,
+                  "timetable_id": 255,
+                  "material_id": 1,
+                  "qty": "34"
+              },
+              {
+                  "id": 678,
+                  "timetable_id": 255,
+                  "material_id": 2,
+                  "qty": "23"
+              }
+          ]
+      }],
+  [
+      {
+          "id": 256,
+          "eventDate": "2024-07-20",
+          "eventTypeId": 1,
+          "eventColor": "#f44336",
+          "eventStateId": 2,
+          "eventStatusId": 0,
+          "gateId": 1,
+          "gate2Id": 1,
+          "startTime": 998,
+          "durationTime": 180,
+          "repeatInterval": 1,
+          "cost": 350,
+          "peopleLimit": 0,
+          "contestants": 0,
+          "dateAdded": "2024-07-20 13:32:34",
+          "description": "",
+          "materialIds": [
+              1,
+              2
+          ],
+          "facilityIds": [
+              1,
+              2
+          ],
+          "qty": [
+              {
+                  "id": 681,
+                  "timetable_id": 256,
+                  "material_id": 1,
+                  "qty": "34"
+              },
+              {
+                  "id": 680,
+                  "timetable_id": 256,
+                  "material_id": 2,
+                  "qty": "23"
+              }
+          ]
+      },
+      {
+          "id": 257,
+          "eventDate": "2024-07-20",
+          "eventTypeId": 1,
+          "eventColor": "#f44336",
+          "eventStateId": 2,
+          "eventStatusId": 0,
+          "gateId": 1,
+          "gate2Id": 1,
+          "startTime": 1004,
+          "durationTime": 180,
+          "repeatInterval": 1,
+          "cost": 350,
+          "peopleLimit": 0,
+          "contestants": 0,
+          "dateAdded": "2024-07-20 13:32:36",
+          "description": "",
+          "materialIds": [
+              1,
+              2
+          ],
+          "facilityIds": [
+              1,
+              2
+          ],
+          "qty": [
+              {
+                  "id": 682,
+                  "timetable_id": 257,
+                  "material_id": 1,
+                  "qty": "34"
+              },
+              {
+                  "id": 683,
+                  "timetable_id": 257,
+                  "material_id": 2,
+                  "qty": "23"
+              }
+          ]
+      }
+  ]
+]

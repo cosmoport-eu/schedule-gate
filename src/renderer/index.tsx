@@ -7,5 +7,6 @@ const root = createRoot(container);
 window.electron.ipcRenderer.sendMessage('config');
 
 window.electron.ipcRenderer.once('config', (config) => {
+  console.log({config})
   root.render(<App conf={config} />);
 });

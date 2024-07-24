@@ -13,7 +13,7 @@ import SomethingCool from '../components/SomethingCool';
 import TableHeader from '../components/TableHeader';
 import * as Icons from "@mui/icons-material";
 import { snakeCase, camelCase }  from  "lodash";
-
+import testData from "./testdata.json"
 // Design
 require('../../../assets/resources/v1/async.app');
 require('../../../assets/resources/v1/defer.app');
@@ -118,48 +118,8 @@ class Main extends Component {
         ])
         .then((data) =>{
 
-          // console.log('fetchData->', data)
-          /*
-          const data = [0][{
-            "id": 254,
-            "eventDate": "2024-07-19",
-            "eventTypeId": 1,
-            "eventStateId": 2,
-            "eventStatusId": 3,
-            "gateId": 1,
-            "gate2Id": 1,
-            "startTime": 1127,
-            "durationTime": 180,
-            "repeatInterval": 1,
-            "cost": 350,
-            "peopleLimit": 0,
-            "contestants": 0,
-            "dateAdded": "2024-07-19 15:41:13",
-            "description": "",
-            "materialIds": [
-                1,
-                2
-            ],
-            "facilityIds": [
-                1,
-                2
-            ],
-            "qty": [
-                {
-                    "id": 677,
-                    "timetable_id": 254,
-                    "material_id": 2,
-                    "qty": "34"
-                },
-                {
-                    "id": 676,
-                    "timetable_id": 254,
-                    "material_id": 1,
-                    "qty": "12"
-                }
-            ]
-        }]
-        */
+          console.log('fetchData->', data)
+          // data = testData
           return this.setState(
             {
               currentEventNew: data[0][0],
@@ -199,8 +159,8 @@ class Main extends Component {
       if (currentTimeInMinutes >= endTimeInMin -5) {
         tType = 'before_return';
       }
-      console.log(`#${evId}: getCurrentEventData->Current Event:`, currentEventNew);
-      console.log(`#${evId}: getCurrentEventData->type:`, tType);
+      //console.log(`#${evId}: getCurrentEventData->Current Event:`, currentEventNew);
+      //console.log(`#${evId}: getCurrentEventData->type:`, tType);
       // if (currentTimeInMinutes >= endTimeInMin -5) {
       //   tType = 'started';
       // }
@@ -247,7 +207,6 @@ class Main extends Component {
     this.state.api
       .fetchEventsByIdForGate(id)
       .then((evs) => {
-        console.log(evs);
         this.setState({ events: evs, lastEventId: id });
       })
       .catch((error) => errorMessage(error));
@@ -257,7 +216,6 @@ class Main extends Component {
     this.state.api
       .fetchEventsByIdForGate(id)
       .then((evs) => {
-        console.log(evs);
         this.setState({ events: evs, lastEventId: id });
       })
       .then(() => callback())
@@ -333,12 +291,13 @@ class Main extends Component {
         const minutes = currentDate.getMinutes();
         const currentTimeInMin = hours * 60 + minutes;
         const settings = Array.isArray(this.state.settings) ? this.state.settings : [];
+        console.log({settings})
         const boardingTime = parseInt(
             settings.find((setting) => setting.param === 'boarding_time')
               ?.value,
             5,
           ) || 5;
-console.log('getCurentEvent->data=', data)
+
         const currentEvent = data.filter((ev) =>
             ev
             && ev.startTime < currentTimeInMin - ev.durationTime    // время начала
@@ -363,10 +322,10 @@ console.log('getCurentEvent->data=', data)
 
       onmessage(...args) {
         const message = args[0].data;
-
-        console.log(message);
-
         if (message.match(/:fire_gate\|\d+\|\d+\|\d+\|[a-z_]+/i)) {
+
+          console.log('WS->GATE->MSG->', message, 'CONF:', config.address.ws)
+
           const [_, gateId, gate2Id, eEventId, tType] = message.split('|');
           const gate =
             tType === 'before_departion'
@@ -560,7 +519,7 @@ console.log('getCurentEvent->data=', data)
 
   // отсчёт времени начинается за 5 минут до начала/окончания мероприятия
   calculateCountdown = (event) => {
-    console.log('calculateCountdown()->event=', event)
+    // console.log('calculateCountdown()->event=', event)
     const date = new Date();
 
     let to = 0;
@@ -581,7 +540,7 @@ console.log('getCurentEvent->data=', data)
     const time = to - (date.getHours() * 60 + date.getMinutes());
 
     const t = time < 0 ? 0 : time;
-    console.log('calculateCountdown()->, time=', t, 'type=', this.state.type)
+    // console.log('calculateCountdown()->, time=', t, 'type=', this.state.type)
     return t;
   };
 
@@ -591,13 +550,13 @@ console.log('getCurentEvent->data=', data)
     }
 
     const event = this.state.currentEventNew;
-    console.log('render()->event=', event)
+    // console.log('render()->event=', event)
     const currentDate = new Date();
     const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
       currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
 
     const nextEvents = this.state.nextEventsNew;
-
+    console.log({nextEvents})
     if (!nextEvents.length > 0 && !this.state.shouldShow) {
       return <SomethingCool />;
     }
@@ -636,7 +595,6 @@ console.log('getCurentEvent->data=', data)
         .filter((m) => event.materialIds.includes(m.id))
         .map((m) => {
           const qty = event.qty.find(q => q.material_id === m.id);
-          console.log('name=', nextLocale[m.code], 'qty=', qty.qty)
           return (<li key={m.id} >
             { m?.icon ?  generateIcon(upperFirst(camelCase(m.icon)), {fontSize: 'large'}) : ''} {nextLocale[m.code]} {qty && `(${qty.qty})`}
           </li>)
@@ -695,7 +653,7 @@ console.log('getCurentEvent->data=', data)
                           </div>
                           <div className="flight__name-body">
                             <div className="flight__name-miss">
-                              {this.renderCategoryName(
+                              #{event.id} {this.renderCategoryName(
                                 event.eventTypeId,
                                 this.state.refData,
                               )}
