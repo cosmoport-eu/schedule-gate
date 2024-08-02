@@ -11,18 +11,11 @@ import TableRow from '../components/TableRow';
 import Guid from '../class/Guid';
 import SomethingCool from '../components/SomethingCool';
 import TableHeader from '../components/TableHeader';
-import * as Icons from "@mui/icons-material";
-import { snakeCase, camelCase }  from  "lodash";
-import testData from "./testdata.json"
+
 // Design
 require('../../../assets/resources/v1/async.app');
 require('../../../assets/resources/v1/defer.app');
 
-const generateIcon = (variation, props = {}) => {
-  const IconName = Icons[variation];
-  return <IconName {...props} />;
-};
-const upperFirst = (str ) => str ? (str.charAt(0).toUpperCase() + str.slice(1)): str;
 const errorMessage = (error) =>
   console.error(`Error #${error.code || '000'}: ${error.message}`, 'error');
 const defaultLocale = {
@@ -86,7 +79,7 @@ class Main extends Component {
     this.init(this.props.config);
     this.setState({ gateNo: this.props.params.gate_id });
     this.fetchData(); // Fetch data initially
-    this.intervalId = setInterval(this.fetchData, 5000); //60000 // Set up interval to fetch data every minute
+    this.intervalId = setInterval(this.fetchData, 60000); // Set up interval to fetch data every minute
     // this.intervalId = setInterval(this.fetchData, 10000);
   }
 
@@ -101,34 +94,33 @@ class Main extends Component {
     try {
       if (this.state.api !== null) {
         const currentDate = new Date();
-
+    
         // год, месяц и день
         const year = currentDate.getFullYear();
-
+    
         // Месяц начинается с 0, поэтому добавляем 1
         const month = String(currentDate.getMonth() + 1).padStart(2, '0');
         const day = String(currentDate.getDate()).padStart(2, '0');
-
+        
         const formattedDate = `${year}-${month}-${day}`;
         const currentTimeInMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
-        // console.log({formattedDate, gate_id: this.props.params.gate_id, lastEventId: this.state.lastEventId})
+
         await Promise.all([
-          //this.state.api.fetchEventsByIdForGate(this.state.lastEventId === 0 ? 5 : this.state.lastEventId),
-          this.state.api.fetchEventsByIdForGate(this.state.lastEventId),
+          this.state.api.fetchEventsByIdForGate(this.state.lastEventId === 0 ? 5 : this.state.lastEventId),
           this.state.api.fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
         ])
-        .then((data) => {
-          // console.log('fetchData->data=', data)
-          return this.setState(
+        .then((data) =>
+          this.setState(
             {
               currentEventNew: data[0][0],
-              nextEventsNew: data[1].filter((e) => (e.startTime > currentTimeInMinutes && e.gateId == this.props.params.gate_id)),
+              nextEventsNew: data[1]
+                .filter((e) => (e.startTime > currentTimeInMinutes && e.gateId == this.props.params.gate_id)),
             },
             () => {
               this.getCurrentEventData();
             },
-          )
-        })
+          ),
+        )
         .catch((error) => errorMessage(error));
       }
     } catch (error) {
@@ -149,28 +141,15 @@ class Main extends Component {
       const currentTimeInMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
 
       let tType = '';
-      // {"startTimeInMin": 1067, "currentTimeInMinutes": 1062, "endTimeInMin": 1247, "tType": ""}
-      // {"startTimeInMin": 17:47, "currentTimeInMinutes": 17:42, "endTimeInMin": 20:47, "tType": ""}
 
-      //{startTimeInMin: 1110, currentTimeInMinutes: 1111, endTimeInMin: 1290, tType: 'before_departion'}
-      //if (startTimeInMin <= currentTimeInMinutes) {
-      if (startTimeInMin + 5 > currentTimeInMinutes) {
+      if (startTimeInMin <= currentTimeInMinutes) {
         tType = 'before_departion';
-      } else if(endTimeInMin >= currentTimeInMinutes) {
-        tType = 'departed';
       }
 
       if (currentTimeInMinutes >= endTimeInMin -5) {
         tType = 'before_return';
       }
-
-      //console.log(`#${evId}: getCurrentEventData->Current Event:`, currentEventNew);
-      //console.log(`#${evId}: getCurrentEventData->type:`, tType);
-      // if (currentTimeInMinutes >= endTimeInMin -5) {
-      //   tType = 'started';
-      // }
-      console.log({startTimeInMin, currentTimeInMinutes, endTimeInMin, tType})
-
+  
       this.setState({ shouldShow: true, lastEventId: evId, type: tType });
     }
   };
@@ -213,6 +192,7 @@ class Main extends Component {
     this.state.api
       .fetchEventsByIdForGate(id)
       .then((evs) => {
+        console.log(evs);
         this.setState({ events: evs, lastEventId: id });
       })
       .catch((error) => errorMessage(error));
@@ -222,6 +202,7 @@ class Main extends Component {
     this.state.api
       .fetchEventsByIdForGate(id)
       .then((evs) => {
+        console.log(evs);
         this.setState({ events: evs, lastEventId: id });
       })
       .then(() => callback())
@@ -237,9 +218,9 @@ class Main extends Component {
     // Месяц начинается с 0, поэтому добавляем 1
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
-
+    
     const formattedDate = `${year}-${month}-${day}`;
-
+    
     Promise.all([
       this.state.api.get('/t_events/types?isActive=true'),
       this.state.api.get('/category?localeId=1&isActive=true'),
@@ -287,9 +268,9 @@ class Main extends Component {
     // Месяц начинается с 0, поэтому добавляем 1
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
-
+    
     const formattedDate = `${year}-${month}-${day}`;
-
+    
     this.state.api
       .fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
       .then((data) => {
@@ -297,16 +278,16 @@ class Main extends Component {
         const minutes = currentDate.getMinutes();
         const currentTimeInMin = hours * 60 + minutes;
         const settings = Array.isArray(this.state.settings) ? this.state.settings : [];
-        console.log({settings})
-        const boardingTime = parseInt(
+        const boardingTime =
+          parseInt(
             settings.find((setting) => setting.param === 'boarding_time')
               ?.value,
             5,
           ) || 5;
 
-        const currentEvent = data.filter((ev) =>
-            ev
-            && ev.startTime < currentTimeInMin - ev.durationTime    // время начала
+        const currentEvent = data
+          .filter((ev) =>
+            ev.startTime < currentTimeInMin - ev.durationTime    // время начала
             && ev.startTime + ev.durationTime < currentTimeInMin // время окончания
             && ev.gateId == this.props.params.gate_id
           );
@@ -328,8 +309,10 @@ class Main extends Component {
 
       onmessage(...args) {
         const message = args[0].data;
-        if (message.match(/:fire_gate\|\d+\|\d+\|\d+\|[a-z_]+/i)) {
 
+        console.log(message);
+
+        if (message.match(/:fire_gate\|\d+\|\d+\|\d+\|[a-z_]+/i)) {
           const [_, gateId, gate2Id, eEventId, tType] = message.split('|');
           const gate =
             tType === 'before_departion'
@@ -340,7 +323,7 @@ class Main extends Component {
 
           if (gate === parseInt(self.props.params.gate_id, 10)) {
             const evId = parseInt(eEventId, 10);
-            console.log('onmessage()->tType', tType)
+
             self.setState(
               { shouldShow: true, lastEventId: evId, type: tType },
               () => {
@@ -429,7 +412,7 @@ class Main extends Component {
 
   renderTypeDescription = (val, refData) => {
     const typeData = refData.types.find((type) => type.id === val);
-
+  
     return typeData ? this.getLocaleProp(typeData.descCode) : val;
   };
 
@@ -481,7 +464,7 @@ class Main extends Component {
     const typeName = this.getLocaleProp(typeData.nameCode, true);
 
     const categoryData = refData.typeCategories.find(c => c.id === typeData.categoryId);
-
+    
     if (!categoryData) {
       return `${typeName}${subtypeName}`;
     }
@@ -511,7 +494,7 @@ class Main extends Component {
 
   renderSubtypeName(val, refData) {
     const typeData = refData.types.find((t) => t.id === val);
-
+    
     if (typeData.parentId !== null) {
       return typeData
         ? `${this.getLocaleProp(typeData.nameCode, true)}`
@@ -523,27 +506,17 @@ class Main extends Component {
 
   // отсчёт времени начинается за 5 минут до начала/окончания мероприятия
   calculateCountdown = (event) => {
-    console.log('calculateCountdown()->this.state.type', this.state.type)
     const date = new Date();
 
     let to = 0;
     if (this.state.type === 'before_departion') {
       to = event.startTime;
-      // to = event.startTime + event.durationTime;
     } else if (this.state.type === 'before_return') {
       to = event.startTime + event.durationTime;
-    } else if (this.state.type === 'departed') {
-      const currentDate = new Date();
-      const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
-      currentDate.getHours() * 60 + currentDate.getMinutes()
-      : event.startTime + 5;
-
-      to = (event.startTime + event.durationTime) - currentTimeInMinutes
-      // to = event.startTime + event.durationTime;
     }
 
     const time = to - (date.getHours() * 60 + date.getMinutes());
-    console.log({to, time, type: this.state.type})
+
     return time < 0 ? 0 : time;
   };
 
@@ -552,14 +525,14 @@ class Main extends Component {
       return <div>No translation data.</div>;
     }
 
+    // const [event, nextEvent] = this.state.events;
     const event = this.state.currentEventNew;
+
     const currentDate = new Date();
-    const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
+    const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ? 
       currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
 
     const nextEvents = this.state.nextEventsNew;
-
-    // console.log('render->nextEvents=', nextEvents)
 
     if (!nextEvents.length > 0 && !this.state.shouldShow) {
       return <SomethingCool />;
@@ -586,23 +559,22 @@ class Main extends Component {
         event.eventTypeId,
         this.state.refData,
       );
-      // {fontSize: 'large'}
+
       facilitiesLi = this.state.facilities
         .filter((f) => event.facilityIds.includes(f.id))
         .map((f) => (
           <li key={f.id} >
-            { f?.icon ?  generateIcon(upperFirst(camelCase(f.icon)), {sx: { fontSize: 40 }}) : ''} {nextLocale[f.code]}
+            {nextLocale[f.code]}
           </li>
         ));
 
       materialsLi = this.state.materials
         .filter((m) => event.materialIds.includes(m.id))
-        .map((m) => {
-          const qty = event.qty.find(q => q.material_id === m.id);
-          return (<li key={m.id} >
-            { m?.icon ?  generateIcon(upperFirst(camelCase(m.icon)), {fontSize: 'large'}) : ''} {nextLocale[m.code]} {qty && `(${qty.qty})`}
-          </li>)
-      });
+        .map((m) => (
+          <li key={m.id} >
+            {nextLocale[m.code]}
+          </li>
+        ));
     }
 
     return (
@@ -620,7 +592,7 @@ class Main extends Component {
         <div className="flight">
           {/* то же самое, что 65% */}
           <div style={{ height: '60vh' }}>
-            { event ? (typeof event !== 'undefined' && event.eventStatusId !== 5) && (
+            {(typeof event !== 'undefined' && event.eventStatusId !== 5) && (
               <div>
                 <div className="flight__main">
                   {/* <div className="flight__left">
@@ -657,7 +629,7 @@ class Main extends Component {
                           </div>
                           <div className="flight__name-body">
                             <div className="flight__name-miss">
-                              #{event.id} {this.renderCategoryName(
+                              {this.renderCategoryName(
                                 event.eventTypeId,
                                 this.state.refData,
                               )}
@@ -777,7 +749,7 @@ class Main extends Component {
                   </div>
                 </div>
               </div>
-            ) : <code>Empty event</code> }
+            )}
           </div>
 
           <div style={{ height: '25vh' }}>
