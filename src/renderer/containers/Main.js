@@ -154,14 +154,19 @@ class Main extends Component {
 
       //{startTimeInMin: 1110, currentTimeInMinutes: 1111, endTimeInMin: 1290, tType: 'before_departion'}
       //if (startTimeInMin <= currentTimeInMinutes) {
-      if (startTimeInMin + 5 > currentTimeInMinutes) {
+
+      // { "startTimeInMin": 707, "currentTimeInMinutes": 710, "endTimeInMin": 887, "tType": "before_departion" }
+      if (startTimeInMin > currentTimeInMinutes) {
         tType = 'before_departion';
+        // console.log({tType, startTimeInMin, op: '>', currentTimeInMinutes})
       } else if(endTimeInMin >= currentTimeInMinutes) {
         tType = 'departed';
+        // console.log({tType, endTimeInMin, op: '>=', currentTimeInMinutes})
       }
 
-      if (currentTimeInMinutes >= endTimeInMin -5) {
+      if (currentTimeInMinutes >= endTimeInMin - 5) {
         tType = 'before_return';
+        // console.log({tType, currentTimeInMinutes, op: '>=', endTimeInMin: (endTimeInMin - 5)})
       }
 
       //console.log(`#${evId}: getCurrentEventData->Current Event:`, currentEventNew);
@@ -169,7 +174,7 @@ class Main extends Component {
       // if (currentTimeInMinutes >= endTimeInMin -5) {
       //   tType = 'started';
       // }
-      console.log({startTimeInMin, currentTimeInMinutes, endTimeInMin, tType})
+      // console.log({startTimeInMin, currentTimeInMinutes, endTimeInMin, tType})
 
       this.setState({ shouldShow: true, lastEventId: evId, type: tType });
     }
@@ -523,26 +528,33 @@ class Main extends Component {
 
   // отсчёт времени начинается за 5 минут до начала/окончания мероприятия
   calculateCountdown = (event) => {
-    console.log('calculateCountdown()->this.state.type', this.state.type)
     const date = new Date();
 
     let to = 0;
+    let time = 0;
     if (this.state.type === 'before_departion') {
       to = event.startTime;
-      // to = event.startTime + event.durationTime;
+      time = to - (date.getHours() * 60 + date.getMinutes());
     } else if (this.state.type === 'before_return') {
       to = event.startTime + event.durationTime;
+      time = to - (date.getHours() * 60 + date.getMinutes());
     } else if (this.state.type === 'departed') {
       const currentDate = new Date();
       const currentTimeInMinutes = (typeof event === 'undefined' || event === null) ?
-      currentDate.getHours() * 60 + currentDate.getMinutes()
-      : event.startTime + 5;
+      currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
 
-      to = (event.startTime + event.durationTime) - currentTimeInMinutes
-      // to = event.startTime + event.durationTime;
+      // to = (event.startTime + event.durationTime) - currentTimeInMinutes
+      // console.log({
+      //   startTime: event.startTime,
+      //   durationTime: event.durationTime,
+      //   currentTimeInMinutes,
+      // })
+
+      time = event.startTime + event.durationTime - currentTimeInMinutes;
     }
 
-    const time = to - (date.getHours() * 60 + date.getMinutes());
+    // const time = to - (date.getHours() * 60 + date.getMinutes());
+    // {to: 645(10 hrs 45 min), time: 4 (4 min), type: 'before_departion'}
     console.log({to, time, type: this.state.type})
     return time < 0 ? 0 : time;
   };
