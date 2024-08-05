@@ -118,11 +118,12 @@ class Main extends Component {
           this.state.api.fetchEventsInRange(formattedDate, formattedDate, this.props.params.gate_id)
         ])
         .then((data) => {
-          // console.log('fetchData->data=', data)
+          console.log('fetchData->data=', data)
+          const currentEventNew = data[0][0]
           return this.setState(
             {
-              currentEventNew: data[0][0],
-              nextEventsNew: data[1].filter((e) => (e.startTime > currentTimeInMinutes && e.gateId == this.props.params.gate_id)),
+              currentEventNew,
+              nextEventsNew: data[1].filter((e) => (e.startTime > currentTimeInMinutes && e.id !== currentEventNew?.id &&  e.gateId == this.props.params.gate_id)),
             },
             () => {
               this.getCurrentEventData();
@@ -302,7 +303,6 @@ class Main extends Component {
         const minutes = currentDate.getMinutes();
         const currentTimeInMin = hours * 60 + minutes;
         const settings = Array.isArray(this.state.settings) ? this.state.settings : [];
-        console.log({settings})
         const boardingTime = parseInt(
             settings.find((setting) => setting.param === 'boarding_time')
               ?.value,
@@ -528,6 +528,7 @@ class Main extends Component {
 
   // отсчёт времени начинается за 5 минут до начала/окончания мероприятия
   calculateCountdown = (event) => {
+   /*
     const date = new Date();
 
     let to = 0;
@@ -556,6 +557,12 @@ class Main extends Component {
     // const time = to - (date.getHours() * 60 + date.getMinutes());
     // {to: 645(10 hrs 45 min), time: 4 (4 min), type: 'before_departion'}
     console.log({to, time, type: this.state.type})
+    */
+
+    const currentDate = new Date();
+    const currentTimeInMinutes = currentDate.getHours() * 60 + currentDate.getMinutes()
+    const time = event.startTime + event.durationTime - currentTimeInMinutes;
+
     return time < 0 ? 0 : time;
   };
 
@@ -570,8 +577,6 @@ class Main extends Component {
       currentDate.getHours() * 60 + currentDate.getMinutes() : event.startTime + 5;
 
     const nextEvents = this.state.nextEventsNew;
-
-    // console.log('render->nextEvents=', nextEvents)
 
     if (!nextEvents.length > 0 && !this.state.shouldShow) {
       return <SomethingCool />;
