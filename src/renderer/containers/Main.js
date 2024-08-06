@@ -345,7 +345,7 @@ class Main extends Component {
 
           if (gate === parseInt(self.props.params.gate_id, 10)) {
             const evId = parseInt(eEventId, 10);
-            console.log('onmessage()->tType', tType)
+            // console.log('onmessage()->tType', tType)
             self.setState(
               { shouldShow: true, lastEventId: evId, type: tType },
               () => {
@@ -559,9 +559,20 @@ class Main extends Component {
     console.log({to, time, type: this.state.type})
     */
 
-    const currentDate = new Date();
-    const currentTimeInMinutes = currentDate.getHours() * 60 + currentDate.getMinutes()
-    const time = event.startTime + event.durationTime - currentTimeInMinutes;
+    const date = new Date();
+
+    let to = 0;
+    let time = 0;
+    const currentTimeInMinutes = date.getHours() * 60 + date.getMinutes()
+    if (this.state.type === 'before_departion') {
+      to = event.startTime;
+      time = to - currentTimeInMinutes;
+    } else if (this.state.type === 'before_return') {
+      to = event.startTime + event.durationTime;
+      time = to - currentTimeInMinutes;
+    } else if (this.state.type === 'departed') {
+      time = (event.startTime + event.durationTime) - currentTimeInMinutes;
+    }
 
     return time < 0 ? 0 : time;
   };
@@ -794,7 +805,7 @@ class Main extends Component {
                   </div>
                 </div>
               </div>
-            ) : <code>Empty event</code> }
+            ) : <code></code> }
           </div>
 
           <div style={{ height: '25vh' }}>
